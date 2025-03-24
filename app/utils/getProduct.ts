@@ -1,0 +1,48 @@
+"use server";
+import { eq } from "drizzle-orm";
+import { db } from "../db";
+import { foodCategoryTable, foodProductsTable, imageFoodProductsTable, imagesTable, nutritionInfoTable } from "../db/schema";
+import { ServerFoodProductDetails } from "../db/types";
+
+export const getProduct = async (id: number) => {
+  const data = await db
+    .select()
+    .from(foodProductsTable)
+    .where(eq(foodProductsTable.id, id))
+    .innerJoin(
+      nutritionInfoTable,
+      eq(foodProductsTable.id, nutritionInfoTable.foodProductId)
+    )
+    .innerJoin(
+      imageFoodProductsTable,
+      eq(imageFoodProductsTable.foodProductId, foodProductsTable.id)
+    )
+    .innerJoin(imagesTable, eq(imageFoodProductsTable.imageId, imagesTable.id))
+    .innerJoin(
+      foodCategoryTable,
+      eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
+    );
+
+  const foodProduct = data[0];
+  if (!foodProduct) {
+    return null;
+  }
+
+  // Process images
+  const foodProductDetails: ServerFoodProductDetails = {
+    ...foodProduct,
+    images: [],
+  };
+  for (const obj of data) {
+    const existingImage = foodProductDetails.images.find(
+      (img) => img.id === obj.images.id
+    );
+    if (!existingImage) {
+      foodProductDetails.images.push({
+        ...obj.images,
+        type: obj.image_food_products.type ?? "other",
+      });
+    }
+  }
+  return foodProductDetails;
+};

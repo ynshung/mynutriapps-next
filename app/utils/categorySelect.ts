@@ -1,8 +1,10 @@
 'use server';
+import { eq } from 'drizzle-orm';
+import { CategorySelect } from '../dashboard/food-database/new-product/types';
 import { db } from '../db';
 import { foodCategoryTable } from '../db/schema';
 
-export default async function getCategories() {
+export async function getCategories() {
   const data = await db
     .select({
       id: foodCategoryTable.id,
@@ -20,3 +22,27 @@ export default async function getCategories() {
     return acc;
   }, []);
 }
+
+export async function getCategoriesSelect(id: number): Promise<CategorySelect> {
+  const categoryArray = await db
+    .select({
+      id: foodCategoryTable.id,
+      name: foodCategoryTable.name,
+      alias: foodCategoryTable.alias,
+    })
+    .from(foodCategoryTable)
+    .where(eq(foodCategoryTable.id, id))
+    .limit(1);
+
+  const category = categoryArray[0];
+
+  if (!category) {
+    throw new Error('Category not found');
+  }
+
+  return {
+    value: category.id,
+    label: category.name,
+  };
+}
+

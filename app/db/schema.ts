@@ -1,8 +1,6 @@
-import { sql } from "drizzle-orm";
 import { AnyPgColumn, boolean, date } from "drizzle-orm/pg-core";
 import {
   integer,
-  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -55,12 +53,8 @@ export const usersTable = pgTable("users", {
 
   activityLevel: activityLevelEnum(),
   goal: goalEnum(),
-  allergies: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
-  medicalConditions: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
+  allergies: text().array(),
+  medicalConditions: text().array(),
 });
 
 export const imagesTable = pgTable("images", {
@@ -79,26 +73,20 @@ export const imagesTable = pgTable("images", {
 export const foodCategoryTable = pgTable("food_category", {
   id: serial().primaryKey(),
   name: text().notNull(),
-  alias: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
+  alias: text().array(),
 });
 
 export const foodProductsTable = pgTable("food_products", {
   id: serial().primaryKey(),
   name: text(),
   brand: text(),
-  barcode: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
+  barcode: text().array(),
 
   ingredients: text(),
-  additives: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
-  allergens: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`), // include "factory" allergens
+  additives: text().array(),
+  allergens: text().array(),
+
+  verified: boolean().default(false),
 
   foodCategoryId: integer().references(() => foodCategoryTable.id),
 });
@@ -126,16 +114,9 @@ export const nutritionInfoTable = pgTable("nutrition_info", {
   cholesterol: numeric(),
   sodium: numeric(),
   fiber: numeric(),
-  vitamins: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
-  minerals: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
-  uncategorized: text()
-    .array()
-    .default(sql`ARRAY[]::text[]`),
-  rawJSON: jsonb(),
+  vitamins: text().array(),
+  minerals: text().array(),
+  uncategorized: text().array(),
 });
 
 export const imageFoodProductsTable = pgTable(
@@ -153,7 +134,7 @@ export const imageFoodProductsTable = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    type: foodProductImageTypes(),
+    type: foodProductImageTypes().notNull(),
   },
   (table) => [primaryKey({ columns: [table.imageId, table.foodProductId] })]
 );

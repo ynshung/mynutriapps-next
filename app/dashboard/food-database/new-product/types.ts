@@ -23,7 +23,7 @@ export interface StringSelect {
 // TODO: the interface for frontend and backend seems to be different, might need to implement some kind of mapping
 
 interface NutritionInfo {
-  extractableTable: boolean;
+  extractableTable?: boolean;
 
   servingSize?: number;
   servingSizeUnit?: string | StringSelect;

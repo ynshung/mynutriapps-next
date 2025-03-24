@@ -33,13 +33,13 @@ export default function ProductImageComponent({
           />
         </p>
       </legend>
-      {imageFile && (
+      {imageFile && imageFile[imageKey] && (
         <div className="relative w-full h-48">
           <Image
             src={imageFile[imageKey] as string}
             alt={imageName}
             fill
-            className="object-cover cursor-zoom-in"
+            className="object-cover cursor-zoom-in rounded-sm"
             onClick={() => onImageView(imageFile[imageKey] as string)}
           />
           <button

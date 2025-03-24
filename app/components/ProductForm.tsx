@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
-import getCategories from "../utils/categorySelect";
+import { getCategories } from "../utils/categorySelect";
 import {
   CategorySelect,
   FoodIngredientDetails,
@@ -17,6 +17,11 @@ import { minerals } from "../data/minerals";
 import { allergens } from "../data/allergens";
 import ProductImageComponent from "./ProductImageComponent";
 import NumberInput from "./NumberInput";
+import { useUser } from "../context/UserContext";
+import { inferenceImage } from "../utils/inferenceImage";
+import { toast, ToastContainer } from "react-toastify";
+import { getProduct } from "../utils/getProduct";
+import { dbToForm } from "../utils/dbToForm";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 const CreatableSelect = dynamic(() => import("react-select/creatable"), {
@@ -24,47 +29,63 @@ const CreatableSelect = dynamic(() => import("react-select/creatable"), {
 });
 
 interface ProductFormProps {
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-
-  foodProductPreview: FoodProductPreview;
-  barcode: StringSelect[];
-  frontLabelData: FoodProduct;
-  nutritionInfo: NutritionInfoSingle;
-  ingredientDetails: FoodIngredientDetails;
-
-  setBarcode: React.Dispatch<React.SetStateAction<StringSelect[]>>;
-  setFoodProductPreview: React.Dispatch<React.SetStateAction<FoodProductPreview>>;
-  setFrontLabelData: React.Dispatch<React.SetStateAction<FoodProduct>>;
-  setNutritionInfo: React.Dispatch<React.SetStateAction<NutritionInfoSingle>>;
-  setIngredientDetails: React.Dispatch<
-    React.SetStateAction<FoodIngredientDetails>
-  >;
-
-  isInferencing: boolean;
-  isSubmitting: boolean;
+  initialProduct?: number;
+  editingProduct?: number;
 }
 
 export default function ProductForm({
-  handleSubmit,
-  foodProductPreview,
-  barcode,
-  frontLabelData,
-  nutritionInfo,
-  ingredientDetails,
-  setFoodProductPreview,
-  setBarcode,
-  setFrontLabelData,
-  setNutritionInfo,
-  setIngredientDetails,
-  isInferencing,
-  isSubmitting,
+  initialProduct,
+  editingProduct,
 }: ProductFormProps) {
+  if (editingProduct) {
+    initialProduct = editingProduct;
+  } 
+
+  const [barcode, setBarcode] = useState<StringSelect[]>([]);
+  const [isVerified, setIsVerified] = useState(false);
+
+  const [foodProductPreview, setFoodProductPreview] =
+    useState<FoodProductPreview>({});
+
+  const [frontLabelData, setFrontLabelData] = useState<FoodProduct>(
+    {} as FoodProduct
+  );
+  const [nutritionInfo, setNutritionInfo] = useState<NutritionInfoSingle>(
+    {} as NutritionInfoSingle
+  );
+  const [ingredientDetails, setIngredientDetails] =
+    useState<FoodIngredientDetails>({} as FoodIngredientDetails);
+
+  const SERVER_URL =
+    process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+
+  const { user } = useUser();
   const [categories, setCategories] = useState<CategorySelect[]>([]);
+  const [isInferencing, setIsInferencing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     getCategories().then((data) => setCategories(data));
     return () => setCategories([]);
   }, []);
+
+  useEffect(() => {
+    if (initialProduct) {
+      getProduct(initialProduct).then((data) => {
+        if (!data) {
+          toast("Error fetching product", { type: "error" });
+          return;
+        }
+        const formData = dbToForm(data);
+        setBarcode(formData.foodProductOther.barcode);
+        setIsVerified(formData.foodProductOther.verified);
+        setFrontLabelData(formData.frontLabel);
+        setNutritionInfo(formData.nutritionInfo);
+        setIngredientDetails(formData.ingredientDetails);
+        setFoodProductPreview(formData.foodProductPreview);
+      });
+    }
+  }, [initialProduct]);
 
   const [imageModalSrc, setImageModalSrc] = useState<string | null>(null);
   const imageModal = useRef<HTMLDialogElement>(null);
@@ -74,8 +95,76 @@ export default function ProductForm({
     imageModal.current?.showModal();
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const submitter = (e.nativeEvent as SubmitEvent)
+      .submitter as HTMLButtonElement;
+
+    if ((e.nativeEvent as KeyboardEvent).key === "Enter") {
+      return;
+    }
+
+    if (submitter.value === "inference") {
+      inferenceImage(
+        formData,
+        user,
+        setIsInferencing,
+        setFrontLabelData,
+        setNutritionInfo,
+        setIngredientDetails,
+        categories,
+        SERVER_URL
+      );
+    } else if (submitter.value === "submit") {
+      handleSubmitProduct(formData);
+    }
+  };
+
+  const handleSubmitProduct = async (formData: FormData) => {
+    setIsSubmitting(true);
+    if (editingProduct === undefined) {
+      const response = await fetch(
+        SERVER_URL + "/api/v1/admin/product/submit",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${await user?.getIdToken()}`,
+          },
+        }
+      );
+      if (response.ok) {
+        toast("Product submitted successfully", { type: "success" });
+      } else {
+        const errorMessage = await response.text();
+        toast(`Error submitting product: ${errorMessage}`, { type: "error" });
+      }
+    } else {
+      const response = await fetch(
+        SERVER_URL + `/api/v1/admin/product/edit/${editingProduct}`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${await user?.getIdToken()}`,
+          },
+        }
+      );
+      if (response.ok) {
+        toast("Product edited successfully", { type: "success" });
+      } else {
+        const errorMessage = await response.text();
+        toast(`Error submitting product: ${errorMessage}`, { type: "error" });
+      }
+    }
+    setIsSubmitting(false);
+  };
+
   return (
     <>
+      <ToastContainer />
       <form
         onSubmit={handleSubmit}
         className="flex gap-2 w-full flex-wrap lg:flex-nowrap"
@@ -86,6 +175,20 @@ export default function ProductForm({
         }}
       >
         <div className="mt-4 p-4 bg-base-100 rounded shadow flex flex-col gap-2">
+          <div className="flex flex-row gap-4 items-center justify-evenly mx-2 mt-2">
+            <h2 className="font-bold items-center flex gap-2 text-lg">
+              <span className="icon-[material-symbols--verified] text-primary text-2xl"></span>
+              Verified
+            </h2>
+            <input
+              name="verified"
+              type="checkbox"
+              className="toggle toggle-primary toggle-md"
+              checked={isVerified}
+              onChange={(e) => setIsVerified(e.target.checked)}
+            />
+          </div>
+          <div className="divider my-0" />
           <h2 className="text-lg font-bold">Product Image</h2>
           <ProductImageComponent
             imageName="Front Label"
@@ -195,7 +298,7 @@ export default function ProductForm({
                   min="0"
                   step="any"
                   className="input w-24"
-                  value={nutritionInfo?.servingSize ?? ""}
+                  value={nutritionInfo?.servingSize || ""}
                   onInput={(e) =>
                     updateState(
                       setNutritionInfo,
@@ -463,10 +566,12 @@ export default function ProductForm({
             >
               {isSubmitting ? (
                 <span className="loading loading-spinner loading-xs"></span>
+              ) : editingProduct ? (
+                <span className="icon-[material-symbols--edit] text-xl"></span>
               ) : (
                 <span className="icon-[material-symbols--send] text-xl"></span>
               )}
-              Submit
+              {editingProduct ? "Edit" : "Create"}
             </button>
           </div>
         </div>
