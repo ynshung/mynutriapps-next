@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { ReactNode } from "react";
 import { auth } from "../lib/client";
 import { signOut } from "firebase/auth";
+import { getDatabaseStatus } from "./DatabaseStatus";
 
 interface RowProps {
   link: string;
@@ -36,13 +37,24 @@ interface DrawerProps {
 export default function Drawer({ children }: DrawerProps) {
   const router = useRouter();
 
+  const [databaseStatus, setDatabaseStatus] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    // TODO - auto refresh status, add server
+    const checkDatabaseStatus = async () => {
+      const status = await getDatabaseStatus();
+      setDatabaseStatus(status);
+    };
+
+    checkDatabaseStatus();
+  }, []);
+
   async function handleLogout() {
     await signOut(auth);
     await fetch("/api/logout");
     router.push("/login");
   }
 
-  
   return (
     <div className="drawer drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
@@ -63,6 +75,13 @@ export default function Drawer({ children }: DrawerProps) {
               className="self-center"
             />
             <div className="flex flex-col gap-2">
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <div className="inline-grid *:[grid-area:1/1]">
+                  <div className={`status ${databaseStatus ? 'status-success' : 'status-error'} animate-ping`}></div>
+                  <div className={`status ${databaseStatus ? 'status-success' : 'status-error'}`}></div>
+                </div>
+                {databaseStatus === null ? "Checking..." : databaseStatus ? "Database is up" : "Database unreachable"}
+              </div>
               <Row
                 link="/dashboard"
                 text="Dashboard"
@@ -91,17 +110,24 @@ export default function Drawer({ children }: DrawerProps) {
                   <span className="icon-[material-symbols--feedback] text-2xl"></span>
                 }
               />
+              <Row
+                link="/dashboard/dev"
+                text="Developer Tools"
+                icon={
+                  <span className="icon-[material-symbols--logo-dev] text-2xl"></span>
+                }
+              />
             </div>
           </div>
           <li>
-          <button
-            className={`flex flex-row items-center py-3 gap-3`}
-            onClick={handleLogout}
-          >
-            <span className="icon-[material-symbols--logout] text-2xl"></span>
-            Logout
-          </button>
-        </li>
+            <button
+              className={`flex flex-row items-center py-3 gap-3`}
+              onClick={handleLogout}
+            >
+              <span className="icon-[material-symbols--logout] text-2xl"></span>
+              Logout
+            </button>
+          </li>
         </ul>
       </div>
     </div>

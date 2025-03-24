@@ -1,0 +1,15 @@
+export const vitamins = [
+  { value: "a", label: "A" },
+  { value: "b1", label: "B1 (Thiamine)" },
+  { value: "b2", label: "B2 (Riboflavin)" },
+  { value: "b3", label: "B3 (Niacin)" },
+  { value: "b5", label: "B5 (Pantothenic Acid)" },
+  { value: "b6", label: "B6 (Pyridoxine)" },
+  { value: "b7", label: "B7 (Biotin)" },
+  { value: "b9", label: "B9 (Folate / Folic Acid)" },
+  { value: "b12", label: "B12" },
+  { value: "c", label: "C" },
+  { value: "d", label: "D" },
+  { value: "e", label: "E" },
+  { value: "k", label: "K" },
+];

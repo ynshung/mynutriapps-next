@@ -1,0 +1,16 @@
+export const minerals = [
+  { value: "calcium", label: "Calcium" },
+  { value: "chloride", label: "Chloride" },
+  { value: "chromium", label: "Chromium" },
+  { value: "copper", label: "Copper" },
+  { value: "fluoride", label: "Fluoride" },
+  { value: "iodine", label: "Iodine" },
+  { value: "iron", label: "Iron" },
+  { value: "magnesium", label: "Magnesium" },
+  { value: "manganese", label: "Manganese" },
+  { value: "molybdenum", label: "Molybdenum" },
+  { value: "phosphorus", label: "Phosphorus" },
+  { value: "potassium", label: "Potassium" },
+  { value: "selenium", label: "Selenium" },
+  { value: "zinc", label: "Zinc" },
+]
