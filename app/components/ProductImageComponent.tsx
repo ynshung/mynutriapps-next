@@ -35,6 +35,7 @@ export default function ProductImageComponent({
       </legend>
       {imageFile && imageFile[imageKey] && (
         <div className="relative w-full h-48">
+          <input name={`${imageKey}_url`} value={imageFile[imageKey] as string} type="hidden"></input>
           <Image
             src={imageFile[imageKey] as string}
             alt={imageName}

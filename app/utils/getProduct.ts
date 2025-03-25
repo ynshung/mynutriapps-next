@@ -1,5 +1,5 @@
 "use server";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import { foodCategoryTable, foodProductsTable, imageFoodProductsTable, imagesTable, nutritionInfoTable } from "../db/schema";
 import { ServerFoodProductDetails } from "../db/types";
@@ -21,7 +21,8 @@ export const getProduct = async (id: number) => {
     .innerJoin(
       foodCategoryTable,
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
-    );
+    )
+    .orderBy(desc(imagesTable.uploadedAt)) // Get the latest image
 
   const foodProduct = data[0];
   if (!foodProduct) {

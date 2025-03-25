@@ -12,6 +12,7 @@ import {
 import { vitamins } from "../data/vitamins";
 import { minerals } from "../data/minerals";
 import { allergens } from "../data/allergens";
+import React from "react";
 
 export const inferenceImage = async (
   formData: FormData,
@@ -26,11 +27,13 @@ export const inferenceImage = async (
   serverUrl: string = "http://localhost:3000",
 ) => {
   const inferenceFormData = new FormData();
-
+  
   ["front_label", "nutrition_label", "ingredients"].forEach((key) => {
     const image = formData.get(key) as File;
-    if (formData.get(`ai_${key}`) === "on" && image?.size) {
+    const imageURL = formData.get(`${key}_url`) as string;
+    if (formData.get(`ai_${key}`) === "on" && (image?.size || imageURL)) {
       inferenceFormData.append(key, image);
+      inferenceFormData.append(`${key}_url`, imageURL);
     }
   });
 

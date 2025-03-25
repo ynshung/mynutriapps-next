@@ -23,7 +23,7 @@ export default async function Page() {
       .orderBy(foodCategoryTable.id);
 
     foodItems = data.map((item) => (
-      <tr className="hover:bg-base-300" key={item.id}>
+      <tr className="hover:bg-base-300 transition" key={item.id}>
         <th>{item.id}</th>
         <td>{item.name}</td>
         <td>
@@ -47,8 +47,13 @@ export default async function Page() {
 
   return (
     <main className="m-8">
-      <h1 className="text-2xl font-bold">Food Categories</h1>
-      <p>Manage food categories in the database.</p>
+      <div className="flex flex-row gap-2 items-center">
+        <span className="icon-[material-symbols--category] text-5xl mx-2"></span>
+        <div>
+          <h1 className="text-2xl font-bold">Food Categories</h1>
+          <p>Manage food categories in the database.</p>
+        </div>
+      </div>
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
         <div className="flex gap-2 mb-4">
