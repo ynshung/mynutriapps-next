@@ -10,6 +10,7 @@ import React from "react";
 import Image from "next/image";
 import FoodActions from "@/app/components/FoodAction";
 import Link from "next/link";
+import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
 
 export default async function Page({
   searchParams,
@@ -40,6 +41,7 @@ export default async function Page({
         brand: foodProductsTable.brand,
         barcode: foodProductsTable.barcode,
         foodCategory: foodCategoryTable.name,
+        verified: foodProductsTable.verified,
         imageKeys: sql<string[]>`ARRAY_AGG(${imagesTable.imageKey})`.as(
           "imageKeys"
         ),
@@ -75,7 +77,12 @@ export default async function Page({
         <td>
           <div className="flex flex-row gap-2 flex-wrap">
             {item.barcode?.map((code) => (
-              <span key={code} className="bg-gray-100 py-1 px-2 rounded hover:bg-gray-200 transition">{code}</span>
+              <span
+                key={code}
+                className="bg-gray-100 py-1 px-2 rounded hover:bg-gray-200 transition"
+              >
+                {code}
+              </span>
             ))}
           </div>
         </td>
@@ -92,6 +99,15 @@ export default async function Page({
         <td>{item.name}</td>
         <td>{item.brand}</td>
         <td>{item.foodCategory}</td>
+        <td>
+          <div className="text-center">
+            {item.verified ? (
+              <span className="icon-[material-symbols--verified] text-3xl text-primary"></span>
+            ) : (
+              <span className="icon-[material-symbols--pending] text-3xl text-gray-400"></span>
+            )}
+          </div>
+        </td>
         <td>
           <FoodActions id={item.id} />
         </td>
@@ -112,21 +128,47 @@ export default async function Page({
       </div>
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
-        <div className="flex gap-2 mb-4">
-          <Link
-            href="/dashboard/food-database/new-product"
-            className="btn btn-primary"
-          >
-            <span className="icon-[material-symbols--add] text-xl"></span> Add
-            New
-          </Link>
-          <Link
-            href="/dashboard/food-database/batch"
-            className="btn btn-primary"
-          >
-            <span className="icon-[lsicon--batch-add-filled] text-xl"></span>{" "}
-            Batch Add
-          </Link>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
+          <div className="flex gap-2 col-span-2 lg:col-span-1">
+            <Link
+              href="/dashboard/food-database/new-product"
+              className="btn btn-primary"
+            >
+              <span className="icon-[material-symbols--add] text-xl"></span> Add
+              New
+            </Link>
+            <Link
+              href="/dashboard/food-database/batch"
+              className="btn btn-primary"
+            >
+              <span className="icon-[lsicon--batch-add-filled] text-xl"></span>{" "}
+              Batch Add
+            </Link>
+          </div>
+          <div className="flex justify-center justify-self-center">
+            <div className="join">
+              {currPage !== 0 && (
+                <Link
+                  href={`/dashboard/food-database?page=${currPage - 1}`}
+                  className="join-item btn"
+                >
+                  «
+                </Link>
+              )}
+              <button className="join-item btn">Page {currPage + 1}</button>
+              {totalPages > currPage + 1 && (
+                <Link
+                  href={`/dashboard/food-database?page=${currPage + 1}`}
+                  className="join-item btn"
+                >
+                  »
+                </Link>
+              )}
+            </div>
+          </div>
+          <div className="justify-self-center lg:justify-self-end self-center">
+            <RefreshFoodProduct />
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -139,7 +181,8 @@ export default async function Page({
                 <th>Name</th>
                 <th>Brand</th>
                 <th>Food Category</th>
-                <th>Actions</th>
+                <th className="text-center">Verified</th>
+                <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>{foodItems}</tbody>

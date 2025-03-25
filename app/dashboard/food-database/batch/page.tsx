@@ -77,6 +77,12 @@ export default function Page() {
       status: "Loading images...",
     };
 
+    // Check if product already exists
+    if (products.some((product) => product.barcode === barcode)) {
+      toast.error("Product already exists!");
+      return;
+    }
+
     setProducts((prev) => [...prev, productImage]);
 
     const imageDataUrl = `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?product_type=food&fields=images`;
@@ -141,6 +147,7 @@ export default function Page() {
     const [addingToDatabase, setAddingToDatabase] = useState(false);
     const addToDatabase = async () => {
       setAddingToDatabase(true);
+      product.status = "Adding...";
 
       const response = await fetch(
         process.env.NEXT_PUBLIC_SERVER_URL +

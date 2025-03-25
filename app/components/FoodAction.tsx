@@ -6,13 +6,13 @@ import deleteProduct from "../utils/deleteProduct";
 export default function FoodActions({ id }: { id: number }) {
   return (
     <>
-      <span className="flex items-center gap-1">
+      <span className="flex items-center justify-center gap-1">
         <Link
           href={`/dashboard/food-database/${id}`}
           className="cursor-pointer"
           title="Edit"
         >
-          <span className="icon-[mdi--edit] text-2xl text-black"></span>
+          <span className="icon-[mdi--edit] text-2xl text-black hover:text-primary-light transition"></span>
         </Link>
         <button
           className="cursor-pointer"
@@ -26,7 +26,7 @@ export default function FoodActions({ id }: { id: number }) {
             }
           }}
         >
-          <span className="icon-[mdi--bin] text-2xl text-black"></span>
+          <span className="icon-[mdi--bin] text-2xl text-black hover:text-error transition"></span>
         </button>
       </span>
     </>
