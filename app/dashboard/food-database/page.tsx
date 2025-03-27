@@ -5,7 +5,7 @@ import {
   imageFoodProductsTable,
   imagesTable,
 } from "@/app/db/schema";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import React from "react";
 import Image from "next/image";
 import FoodActions from "@/app/components/FoodAction";
@@ -25,6 +25,7 @@ export default async function Page({
     currPage = parseInt(page);
   }
 
+  // TODO: Bug - this does not tally with the below actual query
   const totalProductsQuery = await db
     .select({ count: count() })
     .from(foodProductsTable);
@@ -35,16 +36,14 @@ export default async function Page({
   let foodItems = null;
   try {
     const data = await db
-      .select({
+      .selectDistinctOn([foodProductsTable.id], {
         id: foodProductsTable.id,
         name: foodProductsTable.name,
-        brand: foodProductsTable.brand,
         barcode: foodProductsTable.barcode,
-        foodCategory: foodCategoryTable.name,
+        brand: foodProductsTable.brand,
+        category: foodCategoryTable.name,
+        image: imagesTable.imageKey,
         verified: foodProductsTable.verified,
-        imageKeys: sql<string[]>`ARRAY_AGG(${imagesTable.imageKey})`.as(
-          "imageKeys"
-        ),
       })
       .from(foodProductsTable)
       .innerJoin(
@@ -60,13 +59,6 @@ export default async function Page({
         eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
       )
       .where(eq(imageFoodProductsTable.type, "front"))
-      .groupBy(
-        foodProductsTable.id,
-        foodProductsTable.name,
-        foodProductsTable.brand,
-        foodProductsTable.barcode,
-        foodCategoryTable.name
-      )
       .orderBy(desc(foodProductsTable.id))
       .limit(productsPerPage)
       .offset(currPage * productsPerPage);
@@ -89,7 +81,7 @@ export default async function Page({
         <td>
           {/* TODO: Optimize by directly fetching from Open Food Facts, require db change */}
           <Image
-            src={`${process.env.NEXT_PUBLIC_S3_URL}/${item.imageKeys[0]}`}
+            src={`${process.env.NEXT_PUBLIC_S3_URL}/${item.image}`}
             alt={item.name ?? "Food product image"}
             width={128}
             height={128}
@@ -98,13 +90,19 @@ export default async function Page({
         </td>
         <td>{item.name}</td>
         <td>{item.brand}</td>
-        <td>{item.foodCategory}</td>
+        <td>{item.category}</td>
         <td>
           <div className="text-center">
             {item.verified ? (
-              <span className="icon-[material-symbols--verified] text-3xl text-primary"></span>
+              <span
+                title="Verified"
+                className="icon-[material-symbols--verified] text-3xl text-primary"
+              ></span>
             ) : (
-              <span className="icon-[material-symbols--pending] text-3xl text-gray-400"></span>
+              <span
+                title="Pending"
+                className="icon-[material-symbols--pending] text-3xl text-gray-400"
+              ></span>
             )}
           </div>
         </td>

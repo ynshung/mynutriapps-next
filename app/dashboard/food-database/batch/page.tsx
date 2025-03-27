@@ -271,6 +271,10 @@ export default function Page() {
                 )}
               </>
             )}
+            <a href={`https://world.openfoodfacts.org/product/${product.barcode}`} target="_blank" rel="noopener noreferrer"
+              title="View Product"
+              className="icon-[mdi--external-link] text-3xl cursor-pointer text-gray-600 hover:text-orange-300 transition"
+            ></a>
             <span
               title="Remove Product"
               className="icon-[mdi--bin] text-3xl cursor-pointer text-gray-600 hover:text-error transition"

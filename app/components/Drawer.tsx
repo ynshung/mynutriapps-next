@@ -111,6 +111,13 @@ export default function Drawer({ children }: DrawerProps) {
                 }
               />
               <Row
+                link="/dashboard/user-management"
+                text="User Management"
+                icon={
+                  <span className="icon-[mdi--users] text-2xl"></span>
+                }
+              />
+              <Row
                 link="/dashboard/dev"
                 text="Developer Tools"
                 icon={
