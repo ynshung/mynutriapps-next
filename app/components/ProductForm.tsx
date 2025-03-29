@@ -80,7 +80,7 @@ export default function ProductForm({
         setBarcode(formData.foodProductOther.barcode);
         setIsVerified(formData.foodProductOther.verified);
         setFrontLabelData(formData.frontLabel);
-        setNutritionInfo(formData.nutritionInfo);
+        setNutritionInfo(formData.nutritionInfo ?? {});
         setIngredientDetails(formData.ingredientDetails);
         setFoodProductPreview(formData.foodProductPreview);
       });

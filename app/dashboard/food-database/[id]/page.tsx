@@ -2,7 +2,7 @@ import ProductForm from "@/app/components/ProductForm";
 import Link from "next/link";
 import React from "react";
 
-export default function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: { id: string } }) {
   return (
     <main className="m-8">
       <div className="flex flex-row gap-4 items-center">
@@ -18,7 +18,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <ProductForm editingProduct={parseInt(params.id)} />
+      <ProductForm editingProduct={parseInt((await params).id)} />
     </main>
   );
 }

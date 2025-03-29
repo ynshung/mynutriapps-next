@@ -17,7 +17,7 @@ interface dbToFormProps {
   };
   foodProductPreview: FoodProductPreview;
   frontLabel: FoodProduct;
-  nutritionInfo: NutritionInfoSingle;
+  nutritionInfo: NutritionInfoSingle | null;
   ingredientDetails: FoodIngredientDetails;
 }
 
@@ -56,7 +56,7 @@ export const dbToForm = (data: ServerFoodProductDetails): dbToFormProps => {
         value: data.food_category.id,
       },
     },
-    nutritionInfo: {
+    nutritionInfo: data.nutrition_info && {
       servingSize: parseFloat(data.nutrition_info.servingSize!),
       servingSizeUnit: {
         label: data.nutrition_info.servingSizeUnit!,

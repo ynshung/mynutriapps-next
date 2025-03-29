@@ -9,7 +9,7 @@ export const getProduct = async (id: number) => {
     .select()
     .from(foodProductsTable)
     .where(eq(foodProductsTable.id, id))
-    .innerJoin(
+    .leftJoin(
       nutritionInfoTable,
       eq(foodProductsTable.id, nutritionInfoTable.foodProductId)
     )
@@ -33,6 +33,7 @@ export const getProduct = async (id: number) => {
   const foodProductDetails: ServerFoodProductDetails = {
     ...foodProduct,
     images: [],
+    nutrition_info: foodProduct.nutrition_info,
   };
   for (const obj of data) {
     const existingImage = foodProductDetails.images.find(

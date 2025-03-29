@@ -14,6 +14,6 @@ export type ServerFoodProduct = {
 };
 
 export type ServerFoodProductDetails = ServerFoodProduct & {
-  nutrition_info: NutritionInfoDB;
+  nutrition_info: NutritionInfoDB | null;
 }
 
