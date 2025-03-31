@@ -1,5 +1,5 @@
 "use server";
-import { desc, eq } from "drizzle-orm";
+import { arrayOverlaps, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import { foodCategoryTable, foodProductsTable, imageFoodProductsTable, imagesTable, nutritionInfoTable } from "../db/schema";
 import { ServerFoodProductDetails } from "../db/types";
@@ -48,3 +48,11 @@ export const getProduct = async (id: number) => {
   }
   return foodProductDetails;
 };
+
+export const findExistingBarcode = async (barcode: string) => {
+  const data = await db
+    .select({ id: foodProductsTable.id })
+    .from(foodProductsTable)
+    .where(arrayOverlaps(foodProductsTable.barcode, [barcode]))
+  return data;
+}

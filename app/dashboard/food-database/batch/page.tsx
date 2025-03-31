@@ -2,6 +2,8 @@
 
 "use client";
 import { useUser } from "@/app/context/UserContext";
+import { findExistingBarcode } from "@/app/utils/getProduct";
+import { isValidEAN13 } from "@/app/utils/isValidEAN13";
 import { filterKeyList, getProductImageUrl } from "@/app/utils/openFoodFacts";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
@@ -55,6 +57,9 @@ export default function Page() {
   const imageModal = useRef<HTMLDialogElement>(null);
 
   const [products, setProducts] = useState<ProductImages[]>([]);
+  const [errImgList, setErrImgList] = useState<string[]>([]);
+  const currentLoading = useRef<number>(null);
+  const [loadingQueue, setLoadingQueue] = useState<ProductImages[]>([]);
 
   // TODO: Currently only works on refresh and not Next.js routing
   useEffect(() => {
@@ -70,6 +75,70 @@ export default function Page() {
       window.removeEventListener("beforeunload", beforeUnload);
     };
   }, [products]);
+
+  useEffect(() => {
+    if (loadingQueue.length === 0) return;
+
+    const addProduct = async (product: ProductImages) => {
+      if (currentLoading.current !== null) return;
+      currentLoading.current = product.barcode;
+      product.status = "Adding...";
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.barcode === product.barcode ? { ...p, status: product.status } : p
+        )
+      );
+  
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_SERVER_URL +
+          "/api/v1/admin/product/create-from-url",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await user?.getIdToken()}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            barcode: product.barcode,
+            frontLabel: product.front
+              ? getProductImageUrl(product.barcode, product.front.imgid, false)
+              : undefined,
+            nutritionLabel: product.nutrition
+              ? getProductImageUrl(product.barcode, product.nutrition.imgid, false)
+              : undefined,
+            ingredients: product.ingredients
+              ? getProductImageUrl(product.barcode, product.ingredients.imgid, false)
+              : undefined,
+          }),
+        }
+      );
+  
+      // TODO: Show if there are any missing response
+      if (response.ok) {
+        const data = await response.json();
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.barcode === product.barcode
+              ? { ...p, productId: data.productId, status: "Added" }
+              : p
+          )
+        );
+      } else {
+        console.error("Failed to add product!", response);
+        toast.error("Failed to add product!");
+      }
+  
+      setLoadingQueue((prev) =>
+        prev.filter((p) => p.barcode !== product.barcode)
+      );
+      currentLoading.current = null;
+    }
+
+    if (loadingQueue.length > 0) {
+      addProduct(loadingQueue[0]);
+    }
+
+  }, [loadingQueue, user]);
 
   const addProduct = async (barcode: number) => {
     const productImage: ProductImages = {
@@ -100,7 +169,13 @@ export default function Page() {
       } as ImageData;
     });
 
-    productImage.status = "Not Added";
+    const existingProduct = await findExistingBarcode(barcode.toString());
+
+    if (existingProduct.length > 0) {
+      productImage.status = `Exists: ${existingProduct.map((p) => p.id).join(", ")}`;
+    } else {
+      productImage.status = "Not Added";
+    }
 
     setProducts((prev) => {
       const index = prev.findIndex((p) => p.barcode === barcode);
@@ -144,56 +219,16 @@ export default function Page() {
     product: ProductImages;
     index: number;
   }) => {
-    const [addingToDatabase, setAddingToDatabase] = useState(false);
     const addToDatabase = async () => {
-      setAddingToDatabase(true);
-      product.status = "Adding...";
-
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_SERVER_URL +
-          "/api/v1/admin/product/create-from-url",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${await user?.getIdToken()}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            barcode: product.barcode,
-            frontLabel: product.front
-              ? getProductImageUrl(product.barcode, product.front.imgid, false)
-              : undefined,
-            nutritionLabel: product.nutrition
-              ? getProductImageUrl(product.barcode, product.nutrition.imgid, false)
-              : undefined,
-            ingredients: product.ingredients
-              ? getProductImageUrl(product.barcode, product.ingredients.imgid, false)
-              : undefined,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.barcode === product.barcode
-              ? { ...p, productId: data.data.product.id, status: "Added" }
-              : p
-          )
-        );
-      } else {
-        console.error("Failed to add product!", response);
-        toast.error("Failed to add product!");
-      }
-
-      setAddingToDatabase(false);
+      setLoadingQueue((prev) => [...prev, product]);
+      product.status = "Queued";
     };
 
     const ImageItem = ({ imgid, w, h }: ImageData) => {
+      const [imgSrc, setImgSrc] = useState<string | undefined>(getProductImageUrl(product.barcode, imgid));
       return (
         <img
-          src={getProductImageUrl(product.barcode, imgid)}
+          src={errImgList.includes(imgSrc || "") ? "https://placehold.co/400x400?text=Image+not+available" : imgSrc}
           alt="Front Label"
           width={w}
           height={h}
@@ -201,6 +236,12 @@ export default function Page() {
           onClick={() => {
             setImageModalSrc({ imgid, w, h, barcode: product.barcode });
             imageModal.current?.showModal();
+          }}
+          onError={() => {
+            if (imgSrc) setErrImgList((prev) => [...prev, imgSrc]);
+            setImgSrc("https://placehold.co/400x400?text=Image+not+available");
+            w = 400;
+            h = 400;
           }}
         />
       );
@@ -214,7 +255,7 @@ export default function Page() {
             <Barcode
               value={product.barcode.toString()}
               className="max-h-42 mx-auto w-42"
-              format={product.barcode.toString().length === 13 ? "EAN13" : "CODE128"}
+              format={isValidEAN13(product.barcode.toString()) ? "EAN13" : "CODE128"}
             />
           </div>
         </td>
@@ -258,7 +299,7 @@ export default function Page() {
               ></a>
             ) : (
               <>
-                {addingToDatabase ? (
+                {loadingQueue.map((p) => p.barcode).includes(product.barcode) ? (
                   <span className="loading loading-spinner loading-lg"></span>
                 ) : (
                   <span
