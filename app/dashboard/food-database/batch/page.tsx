@@ -124,8 +124,20 @@ export default function Page() {
           )
         );
       } else {
-        console.error("Failed to add product!", response);
-        toast.error("Failed to add product!");
+        const responseBody = await response.text();
+        console.error("Failed to add product!", responseBody);
+        if (responseBody.includes("429 Too Many Requests")) {
+          toast.error("API is overloaded. Please try again later!");
+        } else {
+          toast.error("Failed to add product!");
+        }
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.barcode === product.barcode
+              ? { ...p, status: "Error" }
+              : p
+          )
+        );
       }
   
       setLoadingQueue((prev) =>
