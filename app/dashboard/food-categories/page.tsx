@@ -26,7 +26,7 @@ export default async function Page() {
       <tr className="hover:bg-base-300 transition" key={item.id}>
         <th>{item.id}</th>
         <td>{item.name}</td>
-        <td>
+        {/* <td>
           <ul>
             {item.alias
               ?.filter((alias) => alias !== item.name)
@@ -34,10 +34,10 @@ export default async function Page() {
                 <li key={alias}>{alias}</li>
               ))}
           </ul>
-        </td>
+        </td> */}
         <td>{item.foodProductCount}</td>
         <td>
-          <CategoryAction id={item.id} />
+          <CategoryAction id={item.id} name={item.name} count={item.foodProductCount} />
         </td>
       </tr>
     ));
@@ -56,20 +56,13 @@ export default async function Page() {
       </div>
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
-        <div className="flex gap-2 mb-4">
-          <button className="btn btn-primary">
-            <span className="icon-[material-symbols--add] text-xl"></span> Add
-            New
-          </button>
-        </div>
-
         <div className="overflow-x-auto">
           <table className="table">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Aliases</th>
+                {/* <th>Aliases</th> */}
                 <th>Count</th>
                 <th>Actions</th>
               </tr>

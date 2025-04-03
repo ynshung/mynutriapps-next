@@ -7,10 +7,9 @@ import {
 } from "@/app/db/schema";
 import { count, desc, eq } from "drizzle-orm";
 import React from "react";
-import Image from "next/image";
-import FoodActions from "@/app/components/FoodAction";
 import Link from "next/link";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
+import FoodProductList from "@/app/components/FoodProductList";
 
 export default async function Page({
   searchParams,
@@ -33,86 +32,34 @@ export default async function Page({
 
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
-  let foodItems = null;
-  try {
-    const data = await db
-      .selectDistinctOn([foodProductsTable.id], {
-        id: foodProductsTable.id,
-        name: foodProductsTable.name,
-        barcode: foodProductsTable.barcode,
-        brand: foodProductsTable.brand,
-        category: foodCategoryTable.name,
-        image: imagesTable.imageKey,
-        verified: foodProductsTable.verified,
-      })
-      .from(foodProductsTable)
-      .innerJoin(
-        imageFoodProductsTable,
-        eq(imageFoodProductsTable.foodProductId, foodProductsTable.id)
-      )
-      .innerJoin(
-        imagesTable,
-        eq(imageFoodProductsTable.imageId, imagesTable.id)
-      )
-      .innerJoin(
-        foodCategoryTable,
-        eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
-      )
-      .where(eq(imageFoodProductsTable.type, "front"))
-      .orderBy(desc(foodProductsTable.id))
-      .limit(productsPerPage)
-      .offset(currPage * productsPerPage);
+  const data = await db
+    .selectDistinctOn([foodProductsTable.id], {
+      id: foodProductsTable.id,
+      name: foodProductsTable.name,
+      barcode: foodProductsTable.barcode,
+      brand: foodProductsTable.brand,
+      category: foodCategoryTable.name,
+      categoryId: foodProductsTable.foodCategoryId,
+      image: imagesTable.imageKey,
+      verified: foodProductsTable.verified,
+    })
+    .from(foodProductsTable)
+    .innerJoin(
+      imageFoodProductsTable,
+      eq(imageFoodProductsTable.foodProductId, foodProductsTable.id)
+    )
+    .innerJoin(imagesTable, eq(imageFoodProductsTable.imageId, imagesTable.id))
+    .innerJoin(
+      foodCategoryTable,
+      eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
+    )
+    .where(eq(imageFoodProductsTable.type, "front"))
+    .orderBy(desc(foodProductsTable.id))
+    .limit(productsPerPage)
+    .offset(currPage * productsPerPage);
 
-    foodItems = data.map((item) => (
-      <tr className="hover:bg-base-300 transition" key={item.id}>
-        <th>{item.id}</th>
-        <td>
-          <div className="flex flex-row gap-2 flex-wrap">
-            {item.barcode?.map((code) => (
-              <span
-                key={code}
-                className="bg-gray-100 py-1 px-2 rounded hover:bg-gray-200 transition"
-              >
-                {code}
-              </span>
-            ))}
-          </div>
-        </td>
-        <td>
-          {/* TODO: Optimize by directly fetching from Open Food Facts, require db change */}
-          <Image
-            src={`${process.env.NEXT_PUBLIC_S3_URL}/${item.image}`}
-            alt={item.name ?? "Food product image"}
-            width={128}
-            height={128}
-            className="aspect-image h-full w-full max-w-52 object-cover"
-          />
-        </td>
-        <td>{item.name}</td>
-        <td>{item.brand}</td>
-        <td>{item.category}</td>
-        <td>
-          <div className="text-center">
-            {item.verified ? (
-              <span
-                title="Verified"
-                className="icon-[material-symbols--verified] text-3xl text-primary"
-              ></span>
-            ) : (
-              <span
-                title="Pending"
-                className="icon-[material-symbols--pending] text-3xl text-gray-400"
-              ></span>
-            )}
-          </div>
-        </td>
-        <td>
-          <FoodActions id={item.id} />
-        </td>
-      </tr>
-    ));
-  } catch (e) {
-    console.error(e);
+  if (!data || data.length === 0) {
+    return <div>No food products found</div>;
   }
 
   return (
@@ -169,23 +116,7 @@ export default async function Page({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Barcode</th>
-                <th>Image Preview</th>
-                <th>Name</th>
-                <th>Brand</th>
-                <th>Food Category</th>
-                <th className="text-center">Verified</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>{foodItems}</tbody>
-          </table>
-        </div>
+        <FoodProductList data={data} actions="product" />
         <div className="flex justify-center mt-4">
           <div className="join">
             {currPage !== 0 && (

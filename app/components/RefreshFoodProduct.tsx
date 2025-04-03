@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { refreshFoodProduct } from "../utils/refreshFoodProduct";
+import { refreshFoodProduct } from "../utils/revalidate";
 
 export default function RefreshFoodProduct() {
   return (

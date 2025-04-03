@@ -19,7 +19,7 @@ import ProductImageComponent from "./ProductImageComponent";
 import NumberInput from "./NumberInput";
 import { useUser } from "../context/UserContext";
 import { inferenceImage } from "../utils/inferenceImage";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { getProduct } from "../utils/getProduct";
 import { dbToForm } from "../utils/dbToForm";
 
@@ -164,7 +164,6 @@ export default function ProductForm({
 
   return (
     <>
-      <ToastContainer />
       <form
         onSubmit={handleSubmit}
         className="flex gap-2 w-full flex-wrap lg:flex-nowrap"

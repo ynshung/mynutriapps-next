@@ -77,6 +77,7 @@ export const foodCategoryTable = pgTable("food_category", {
   alias: text().array(),
 });
 
+// TODO: Setup indexes
 export const foodProductsTable = pgTable("food_products", {
   id: serial().primaryKey(),
   name: text(),
@@ -89,7 +90,13 @@ export const foodProductsTable = pgTable("food_products", {
 
   verified: boolean().default(false),
 
-  foodCategoryId: integer().references(() => foodCategoryTable.id),
+  foodCategoryId: integer()
+    .notNull()
+    .default(0)
+    .references(() => foodCategoryTable.id, {
+      onDelete: "set default",
+      onUpdate: "cascade",
+    }),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
 });
@@ -121,6 +128,8 @@ export const nutritionInfoTable = pgTable("nutrition_info", {
   minerals: text().array(),
   uncategorized: text().array(),
 });
+
+// TODO - inconsistent naming of Id and ID
 
 export const imageFoodProductsTable = pgTable(
   "image_food_products",
@@ -157,6 +166,19 @@ export const userProductClicksTable = pgTable("user_product_clicks", {
     }),
   clickedAt: timestamp().notNull().defaultNow(),
   userScan: boolean().default(false),
+});
+
+export const userSearchHistoryTable = pgTable("user_search_history", {
+  userID: integer()
+    .notNull()
+    .references(() => usersTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  searchTerm: text().notNull(),
+  totalSearchResults: integer().notNull(),
+  searchResults: text().array(),
+  searchTimestamp: timestamp().notNull().defaultNow(),
 });
 
 export const userProductFavoritesTable = pgTable("user_product_favorites", {

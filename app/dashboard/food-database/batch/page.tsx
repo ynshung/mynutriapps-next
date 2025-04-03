@@ -1,14 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 "use client";
+import BackButton from "@/app/components/BackButton";
 import { useUser } from "@/app/context/UserContext";
 import { findExistingBarcode } from "@/app/utils/getProduct";
 import { isValidEAN13 } from "@/app/utils/isValidEAN13";
 import { filterKeyList, getProductImageUrl } from "@/app/utils/openFoodFacts";
-import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import Barcode from "react-barcode";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 interface ImageData {
   imgid: string;
@@ -345,14 +345,8 @@ export default function Page() {
 
   return (
     <main className="m-8">
-      <ToastContainer />
       <div className="flex flex-row gap-4 items-center">
-        <Link
-          href="/dashboard/food-database"
-          className="btn btn-circle btn-xl btn-ghost"
-        >
-          <span className="icon-[material-symbols--chevron-left-rounded] text-5xl"></span>
-        </Link>
+        <BackButton href="/dashboard/food-database" />
         <div>
           <h1 className="text-2xl font-bold">Batch Add</h1>
           <p>Add multiple food product at once.</p>
