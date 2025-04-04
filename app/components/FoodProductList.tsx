@@ -3,6 +3,7 @@ import FoodActions from "./FoodAction";
 import CategoryProductAction from "./CategoryProductAction";
 import Link from "next/link";
 import ExpandImage from "./ExpandImage";
+import { imagesTable } from "../db/schema";
 
 export default function FoodProductList({
   data,
@@ -15,7 +16,11 @@ export default function FoodProductList({
     brand: string | null;
     category: string;
     categoryId: number | null;
-    image: string;
+    images: {
+      front?: typeof imagesTable.$inferSelect;
+      nutritional_table?: typeof imagesTable.$inferSelect;
+      ingredients?: typeof imagesTable.$inferSelect;
+    };
     verified: boolean | null;
   }[];
   actions?: "product" | "category";
@@ -37,20 +42,46 @@ export default function FoodProductList({
       </td>
       <td>
         {/* TODO: Optimize by directly fetching from Open Food Facts, require db change */}
-        <ExpandImage
-          image={item.image}
-          name={item.name}
-        />
+        {item.images.front?.imageKey && (
+          <ExpandImage image={item.images.front?.imageKey} name={item.name} />
+        )}
       </td>
-      <td>{item.name}</td>
-      <td>{item.brand}</td>
-      <td><Link href={`/dashboard/food-categories/${item.categoryId}`} className="hover:text-primary hover:underline transition">{item.category}</Link></td>
+      <td>
+        <p className="font-bold">{item.name}</p>
+        <p>{item.brand}</p>
+      </td>
+      <td>
+        <Link
+          href={`/dashboard/food-categories/${item.categoryId}`}
+          className="hover:text-primary hover:underline transition"
+        >
+          {item.category}
+        </Link>
+      </td>
+      <td>
+        <div className="flex flex-row gap-2 flex-wrap justify-center">
+          <span
+            className={`icon-[material-symbols--nutrition] text-3xl ${
+              item.images.nutritional_table?.imageKey
+                ? "text-primary"
+                : "text-gray-300"
+            }`}
+          ></span>
+          <span
+            className={`icon-[mdi--nutrition] text-3xl ${
+              item.images.ingredients?.imageKey
+                ? "text-primary"
+                : "text-gray-300"
+            }`}
+          ></span>
+        </div>
+      </td>
       <td>
         <div className="text-center">
           {item.verified ? (
             <span
               title="Verified"
-              className="icon-[material-symbols--verified] text-3xl text-primary"
+              className="icon-[material-symbols--verified] text-4xl text-primary"
             ></span>
           ) : (
             <span
@@ -60,7 +91,13 @@ export default function FoodProductList({
           )}
         </div>
       </td>
-      <td>{actions === "product" ? <FoodActions id={item.id} /> : <CategoryProductAction id={item.id} />}</td>
+      <td>
+        {actions === "product" ? (
+          <FoodActions id={item.id} />
+        ) : (
+          <CategoryProductAction id={item.id} />
+        )}
+      </td>
     </tr>
   ));
 
@@ -72,9 +109,9 @@ export default function FoodProductList({
             <th>ID</th>
             <th>Barcode</th>
             <th>Image Preview</th>
-            <th>Name</th>
-            <th>Brand</th>
+            <th>Name & Brand</th>
             <th>Food Category</th>
+            <th className="text-center">Completeness</th>
             <th className="text-center">Verified</th>
             <th className="text-center">Actions</th>
           </tr>

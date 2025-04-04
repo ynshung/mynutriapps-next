@@ -7,7 +7,7 @@ import {
   imageFoodProductsTable,
   imagesTable,
 } from "@/app/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { AppProps } from "next/dist/shared/lib/router/router";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -37,7 +37,8 @@ export default async function Page({ params }: AppProps) {
       brand: foodProductsTable.brand,
       category: foodCategoryTable.name,
       categoryId: foodProductsTable.foodCategoryId,
-      image: imagesTable.imageKey,
+      imageKeys: sql<typeof imagesTable.$inferSelect[]>`json_agg(${imagesTable})`,
+      imageType: sql<typeof imageFoodProductsTable.$inferSelect[]>`json_agg(${imageFoodProductsTable})`,
       verified: foodProductsTable.verified,
     })
     .from(foodProductsTable)
@@ -50,13 +51,23 @@ export default async function Page({ params }: AppProps) {
       foodCategoryTable,
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
     )
-    .where(
-      and(
-        eq(foodProductsTable.foodCategoryId, category.id),
-        eq(imageFoodProductsTable.type, "front")
-      )
-    )
+    .where(eq(foodProductsTable.foodCategoryId, category.id))
     .orderBy(desc(foodProductsTable.id));
+
+  const newProductQuery = productQuery.map((item) => {
+    const imageType = item.imageType;
+    const imageKeys = item.imageKeys;
+    const images = imageType.reduce((acc, image, index) => {
+      acc[image.type] = imageKeys[index];
+      return acc;
+    }, {} as Record<string, { imageKey: string }>);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { imageKeys: _, imageType: __, ...rest } = item;
+    return {
+      ...rest,
+      images,
+    };
+  });
 
   return (
     <main className="m-8">
@@ -69,7 +80,7 @@ export default async function Page({ params }: AppProps) {
       </div>
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
-        <FoodProductList data={productQuery} actions="category" />
+        <FoodProductList data={newProductQuery} actions="category" />
       </div>
     </main>
   );

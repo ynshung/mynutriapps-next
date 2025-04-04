@@ -5,7 +5,7 @@ import {
   imageFoodProductsTable,
   imagesTable,
 } from "@/app/db/schema";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, sql } from "drizzle-orm";
 import React from "react";
 import Link from "next/link";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
@@ -40,7 +40,8 @@ export default async function Page({
       brand: foodProductsTable.brand,
       category: foodCategoryTable.name,
       categoryId: foodProductsTable.foodCategoryId,
-      image: imagesTable.imageKey,
+      imageKeys: sql<typeof imagesTable.$inferSelect[]>`json_agg(${imagesTable})`,
+      imageType: sql<typeof imageFoodProductsTable.$inferSelect[]>`json_agg(${imageFoodProductsTable})`,
       verified: foodProductsTable.verified,
     })
     .from(foodProductsTable)
@@ -53,7 +54,15 @@ export default async function Page({
       foodCategoryTable,
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
     )
-    .where(eq(imageFoodProductsTable.type, "front"))
+    .groupBy(
+      foodProductsTable.id,
+      foodProductsTable.name,
+      foodProductsTable.barcode,
+      foodProductsTable.brand,
+      foodCategoryTable.name,
+      foodProductsTable.foodCategoryId,
+      foodProductsTable.verified
+    )
     .orderBy(desc(foodProductsTable.id))
     .limit(productsPerPage)
     .offset(currPage * productsPerPage);
@@ -61,6 +70,21 @@ export default async function Page({
   if (!data || data.length === 0) {
     return <div>No food products found</div>;
   }
+  
+  const newData = data.map((item) => {
+    const imageType = item.imageType;
+    const imageKeys = item.imageKeys;
+    const images = imageType.reduce((acc, image, index) => {
+      acc[image.type] = imageKeys[index];
+      return acc;
+    }, {} as Record<string, { imageKey: string }>);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { imageKeys: _, imageType: __, ...rest } = item;
+    return {
+      ...rest,
+      images,
+    };
+  });
 
   return (
     <main className="m-8">
@@ -100,6 +124,7 @@ export default async function Page({
                   «
                 </Link>
               )}
+              {/* Todo: turn to component and add prompt */}
               <button className="join-item btn">Page {currPage + 1}</button>
               {totalPages > currPage + 1 && (
                 <Link
@@ -116,7 +141,7 @@ export default async function Page({
           </div>
         </div>
 
-        <FoodProductList data={data} actions="product" />
+        <FoodProductList data={newData} actions="product" />
         <div className="flex justify-center mt-4">
           <div className="join">
             {currPage !== 0 && (
