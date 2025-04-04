@@ -224,6 +224,19 @@ export default function Page() {
     toast.success("Products added successfully!");
   };
 
+  const addAll = async () => {
+    const productNotAdded = products
+      .filter((product) => product.status === "Not Added");
+
+    if (productNotAdded.length === 0) {
+      toast.error("No new barcodes found!");
+      return;
+    }
+
+    setLoadingQueue((prev) => [...prev, ...productNotAdded]);
+    toast.success("Queued all products for addition!");
+  }
+
   const ProductRow = ({
     product,
     index,
@@ -373,6 +386,13 @@ export default function Page() {
           >
             <span className="icon-[material-symbols--content-paste] text-xl"></span>
             Paste Barcode List
+          </button>
+          <button
+            className="btn btn-primary btn-outline"
+            onClick={addAll}
+          >
+            <span className="icon-[material-symbols--add] text-xl"></span>
+            Add all
           </button>
         </div>
         <div>
