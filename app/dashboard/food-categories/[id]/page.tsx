@@ -52,6 +52,7 @@ export default async function Page({ params }: AppProps) {
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
     )
     .where(eq(foodProductsTable.foodCategoryId, category.id))
+    .groupBy(foodProductsTable.id, foodCategoryTable.name)
     .orderBy(desc(foodProductsTable.id));
 
   const newProductQuery = productQuery.map((item) => {

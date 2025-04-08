@@ -43,7 +43,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
         <div
           className={`modal-box ${wide ? "w-5/6s max-w-5xl h-3/4" : ""}`}
         >
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={hideModal}>
             ✕
           </button>
           {modalContent}

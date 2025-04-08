@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useModal } from "../context/ModalContext";
 import { useRef } from "react";
 
-export default function JumpPage({ currPage }: { currPage: number }) {
+export default function JumpPage({ currPage, total }: { currPage: number; total: number }) {
   const router = useRouter();
   const { showModal, hideModal } = useModal();
 
@@ -21,28 +21,38 @@ export default function JumpPage({ currPage }: { currPage: number }) {
             className="input input-bordered w-32"
             ref={inputText}
             defaultValue={currPage + 1}
-          />
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              const inputValue = inputText.current?.value;
-              const pageNumber = parseInt(inputValue || "");
-              if (!isNaN(pageNumber) && pageNumber > 0) {
-                handleJumpPage(pageNumber);
+            min={1}
+            max={total}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleGo();
               }
             }}
-          >
+          />
+          <button className="btn btn-primary" onClick={handleGo}>
             Go
           </button>
         </div>
-      </div>
-    , false);
+      </div>,
+      false
+    );
+  };
+
+  const handleGo = () => {
+    const inputValue = inputText.current?.value;
+    const pageNumber = parseInt(inputValue || "");
+    if (!isNaN(pageNumber) && pageNumber > 0 && pageNumber <= total) {
+      handleJumpPage(pageNumber);
+    }
   };
 
   const handleJumpPage = (page: number) => {
     const pageNum = page - 1;
     if (pageNum >= 0) {
-      router.push(`/dashboard/food-database?page=${pageNum}`);
+      const params = new URLSearchParams(window.location.search);
+      params.set("page", pageNum.toString());
+      router.push(`/dashboard/food-database?${params.toString()}`);
     } else {
       alert("Invalid page number");
     }
@@ -51,7 +61,7 @@ export default function JumpPage({ currPage }: { currPage: number }) {
 
   return (
     <button className="join-item btn" onClick={() => handleOnClick()}>
-      Page {currPage + 1}
+      Page {currPage + 1} / {total}
     </button>
   );
 }

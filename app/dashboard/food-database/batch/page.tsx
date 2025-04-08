@@ -129,7 +129,7 @@ export default function Page() {
         if (responseBody.includes("429 Too Many Requests")) {
           toast.error("API is overloaded. Please try again later!");
         } else {
-          toast.error("Failed to add product!");
+          toast.error(`Failed to add product (${product.barcode})!`);
         }
         setProducts((prev) =>
           prev.map((p) =>
@@ -155,7 +155,7 @@ export default function Page() {
   const addProduct = async (barcode: number) => {
     const productImage: ProductImages = {
       barcode,
-      status: "Loading images...",
+      status: "Loading...",
     };
 
     // Check if product already exists
@@ -166,10 +166,30 @@ export default function Page() {
 
     setProducts((prev) => [...prev, productImage]);
 
+    const existingProduct = await findExistingBarcode(barcode.toString());
+
+    if (existingProduct.length > 0) {
+      productImage.status = `Exists: ${existingProduct.map((p) => p.id).join(", ")}`;
+      // TODO: temporarily remove the product from the list
+      setProducts((prev) => prev.filter((p) => p.barcode !== barcode));
+      return;
+    } else {
+      productImage.status = "Not Added";
+    }
+
     const imageDataUrl = `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?product_type=food&fields=images`;
     const response = await fetch(imageDataUrl);
     const data: ProductDataType = await response.json();
 
+    if (!data.product) {
+      productImage.status = "No images found";
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.barcode === barcode ? { ...p, status: productImage.status } : p
+        )
+      );
+      return;
+    }
     const keyList = filterKeyList(Object.keys(data.product.images));
 
     keyList.forEach((key) => {
@@ -180,14 +200,6 @@ export default function Page() {
         w: imageData.sizes["400"].w,
       } as ImageData;
     });
-
-    const existingProduct = await findExistingBarcode(barcode.toString());
-
-    if (existingProduct.length > 0) {
-      productImage.status = `Exists: ${existingProduct.map((p) => p.id).join(", ")}`;
-    } else {
-      productImage.status = "Not Added";
-    }
 
     setProducts((prev) => {
       const index = prev.findIndex((p) => p.barcode === barcode);
@@ -273,7 +285,7 @@ export default function Page() {
     };
 
     return (
-      <tr>
+      <tr className="h-48">
         <th>{index + 1}</th>
         <td>
           <div>

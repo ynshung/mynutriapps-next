@@ -17,10 +17,11 @@ export default function NotFound() {
         <p className="text-lg font-bold">No product found</p>
       </div>
       <div className="flex flex-col gap-2">
-      <Link href="/dashboard/food-database" className="btn btn-primary">
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+      <a href="/dashboard/food-database" className="btn btn-primary">
         <span className="icon-[material-symbols--first-page] text-3xl"></span>
-        Go to First Page
-      </Link>
+        Return
+      </a>
         <Link
           href="/dashboard/food-database/new-product"
           className="btn btn-primary transition"
