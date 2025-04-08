@@ -11,6 +11,7 @@ import Link from "next/link";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
 import FoodProductList from "@/app/components/FoodProductList";
 import JumpPage from "@/app/components/JumpPage";
+import Form from 'next/form'
 
 export default async function Page({
   searchParams,
@@ -143,8 +144,10 @@ export default async function Page({
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
           <div className="">
             <label className="input min-w-40">
-              <span className="icon-[material-symbols--search] text-3xl"></span>
-              <input type="search" className="grow" placeholder="Search" />
+              <span className="icon-[material-symbols--search-rounded] text-xl"></span>
+              <Form action="/dashboard/food-database" className="grow">
+                <input name="search" type="search" className="grow" placeholder="Search" />
+              </Form>
             </label>
           </div>
           <div className="flex justify-center justify-self-center">
