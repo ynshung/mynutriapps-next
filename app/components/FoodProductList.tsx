@@ -5,24 +5,26 @@ import Link from "next/link";
 import ExpandImage from "./ExpandImage";
 import { imagesTable } from "../db/schema";
 
+export interface FoodProductDatabaseType {
+  id: number;
+  name: string | null;
+  barcode: string[] | null;
+  brand: string | null;
+  category: string;
+  categoryId: number | null;
+  images: {
+    front?: typeof imagesTable.$inferSelect;
+    nutritional_table?: typeof imagesTable.$inferSelect;
+    ingredients?: typeof imagesTable.$inferSelect;
+  };
+  verified: boolean | null;
+}
+
 export default function FoodProductList({
   data,
   actions = "product",
 }: {
-  data: {
-    id: number;
-    name: string | null;
-    barcode: string[] | null;
-    brand: string | null;
-    category: string;
-    categoryId: number | null;
-    images: {
-      front?: typeof imagesTable.$inferSelect;
-      nutritional_table?: typeof imagesTable.$inferSelect;
-      ingredients?: typeof imagesTable.$inferSelect;
-    };
-    verified: boolean | null;
-  }[];
+  data: FoodProductDatabaseType[];
   actions?: "product" | "category";
 }) {
   const foodItems = data.map((item) => (
@@ -59,35 +61,50 @@ export default function FoodProductList({
         </Link>
       </td>
       <td>
-        <div className="flex flex-row gap-2 flex-wrap justify-center">
+        <div className="flex flex-row gap-2 flex-wrap justify-center items-center">
           <span
-            className={`icon-[material-symbols--nutrition] text-3xl ${
-              item.images.nutritional_table?.imageKey
-                ? "text-primary"
-                : "text-gray-300"
+            className={`tooltip ${
+              item.images.nutritional_table?.imageKey ? "tooltip-primary" : ""
             }`}
-          ></span>
+            data-tip={`Nutrition${
+              item.images.nutritional_table?.imageKey ? "" : " unavailable"
+            }`}
+          >
+            <span
+              className={`icon-[material-symbols--nutrition] text-3xl ${
+                item.images.nutritional_table?.imageKey
+                  ? "text-primary"
+                  : "text-gray-300"
+              }`}
+            ></span>
+          </span>
           <span
-            className={`icon-[mdi--nutrition] text-3xl ${
-              item.images.ingredients?.imageKey
-                ? "text-primary"
-                : "text-gray-300"
+            className={`tooltip ${
+              item.images.ingredients?.imageKey ? "tooltip-primary" : ""
             }`}
-          ></span>
+            data-tip={`Ingredients${
+              item.images.ingredients?.imageKey ? "" : " unavailable"
+            }`}
+          >
+            <span
+              className={`icon-[mdi--nutrition] text-3xl ${
+                item.images.ingredients?.imageKey
+                  ? "text-primary"
+                  : "text-gray-300"
+              }`}
+            ></span>
+          </span>
         </div>
       </td>
       <td>
-        <div className="text-center">
+        <div
+          className="flex justify-center tooltip"
+          data-tip={item.verified ? "Verified" : "Unverified"}
+        >
           {item.verified ? (
-            <span
-              title="Verified"
-              className="icon-[material-symbols--verified] text-4xl text-primary"
-            ></span>
+            <span className="icon-[material-symbols--verified] text-4xl text-primary"></span>
           ) : (
-            <span
-              title="Pending"
-              className="icon-[material-symbols--pending] text-3xl text-gray-400"
-            ></span>
+            <span className="icon-[material-symbols--pending] text-3xl text-gray-400"></span>
           )}
         </div>
       </td>
