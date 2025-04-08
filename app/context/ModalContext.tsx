@@ -9,7 +9,7 @@ import React, {
 } from "react";
 
 interface ModalContextType {
-  showModal: (content: ReactNode) => void;
+  showModal: (content: ReactNode, wide?: boolean) => void;
   hideModal: () => void;
 }
 
@@ -19,24 +19,30 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [modalContent, setModalContent] = useState<ReactNode | null>(null);
+  const [wide, setWide] = useState<boolean>(true);
   const modalRef = useRef<HTMLDialogElement | null>(null);
 
-  const showModal = (content: ReactNode) => {
+  const showModal = (content: ReactNode, wide: boolean = true) => {
     setModalContent(null)
     setModalContent(content);
+    setWide(wide);
     modalRef.current?.showModal();
   };
 
   const hideModal = () => {
-    setModalContent(null);
     modalRef.current?.close();
+    setTimeout(() => {
+      setModalContent(null);
+    }, 200);
   };
 
   return (
     <ModalContext.Provider value={{ showModal, hideModal }}>
       {children}
       <dialog ref={modalRef} className="modal">
-        <div className="modal-box w-11/12 max-w-5xl h-3/4">
+        <div
+          className={`modal-box ${wide ? "w-5/6s max-w-5xl h-3/4" : ""}`}
+        >
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
           </button>

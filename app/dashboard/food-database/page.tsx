@@ -124,8 +124,7 @@ export default async function Page({
                   «
                 </Link>
               )}
-              {/* Todo: turn to component and add prompt */}
-              <button className="join-item btn">Page {currPage + 1}</button>
+              <JumpPage currPage={currPage} />
               {totalPages > currPage + 1 && (
                 <Link
                   href={`/dashboard/food-database?page=${currPage + 1}`}
@@ -152,7 +151,7 @@ export default async function Page({
                 «
               </Link>
             )}
-            <button className="join-item btn">Page {currPage + 1}</button>
+            <JumpPage currPage={currPage} />
             {totalPages > currPage + 1 && (
               <Link
                 href={`/dashboard/food-database?page=${currPage + 1}`}
