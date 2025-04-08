@@ -10,6 +10,7 @@ import React from "react";
 import Link from "next/link";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
 import FoodProductList from "@/app/components/FoodProductList";
+import JumpPage from "@/app/components/JumpPage";
 
 export default async function Page({
   searchParams,
@@ -68,7 +69,49 @@ export default async function Page({
     .offset(currPage * productsPerPage);
 
   if (!data || data.length === 0) {
-    return <div>No food products found</div>;
+    return (
+      <main className="m-8">
+        <div className="flex flex-row gap-2 items-center">
+          <span className="icon-[material-symbols--grocery] text-5xl mx-2"></span>
+          <div>
+            <h1 className="text-2xl font-bold">Food Database</h1>
+            <p>Manage food items in the database.</p>
+          </div>
+        </div>
+
+        <div className="flex flex-row flex-wrap gap-8 mt-4 p-4 bg-base-100 text-center rounded shadow justify-center items-center min-h-52">
+          <div className="flex flex-row gap-2 items-center">
+            <span className="icon-[material-symbols--error] text-4xl"></span>
+            <p className="text-lg font-bold">No product found</p>
+          </div>
+          {currPage !== 0 ? (
+            <Link href="/dashboard/food-database" className="btn btn-primary">
+              <span className="icon-[material-symbols--first-page] text-3xl"></span>
+              Go to First Page
+            </Link>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/dashboard/food-database/new-product"
+                className="btn btn-primary transition"
+                title="Add Product"
+              >
+                <span className="icon-[material-symbols--add] text-2xl"></span>
+                Add Product
+              </Link>
+              <Link
+                href="/dashboard/food-database/batch"
+                className="btn btn-primary transition"
+                title="Batch Add Product"
+              >
+                <span className="icon-[material-symbols--shadow-add] text-2xl"></span>
+                Batch Add
+              </Link>
+            </div>
+          )}
+        </div>
+      </main>
+    );
   }
   
   const newData = data.map((item) => {
@@ -98,21 +141,11 @@ export default async function Page({
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
-          <div className="flex gap-2 col-span-2 lg:col-span-1">
-            <Link
-              href="/dashboard/food-database/new-product"
-              className="btn btn-primary"
-            >
-              <span className="icon-[material-symbols--add] text-xl"></span> Add
-              New
-            </Link>
-            <Link
-              href="/dashboard/food-database/batch"
-              className="btn btn-primary"
-            >
-              <span className="icon-[lsicon--batch-add-filled] text-xl"></span>{" "}
-              Batch Add
-            </Link>
+          <div className="">
+            <label className="input min-w-40">
+              <span className="icon-[material-symbols--search] text-3xl"></span>
+              <input type="search" className="grow" placeholder="Search" />
+            </label>
           </div>
           <div className="flex justify-center justify-self-center">
             <div className="join">
@@ -135,7 +168,21 @@ export default async function Page({
               )}
             </div>
           </div>
-          <div className="justify-self-center lg:justify-self-end self-center">
+          <div className="col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
+            <Link
+              href="/dashboard/food-database/new-product"
+              className="btn btn-primary btn-circle transition"
+              title="Add Product"
+            >
+              <span className="icon-[material-symbols--add] text-2xl"></span>
+            </Link>
+            <Link
+              href="/dashboard/food-database/batch"
+              className="btn btn-primary btn-circle transition"
+              title="Batch Add Product"
+            >
+              <span className="icon-[material-symbols--shadow-add] text-2xl"></span>
+            </Link>
             <RefreshFoodProduct />
           </div>
         </div>
