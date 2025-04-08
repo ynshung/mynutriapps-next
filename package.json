@@ -12,6 +12,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
     "firebase": "^11.4.0",
+    "minisearch": "^7.1.2",
     "next": "^15.2.3",
     "next-firebase-auth-edge": "^1.9.1",
     "pg": "^8.14.0",
