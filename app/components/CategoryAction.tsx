@@ -87,6 +87,7 @@ export default function CategoryAction({
         href={`/dashboard/food-categories/${id}`}
         className="cursor-pointer"
         title="View food product list"
+        prefetch
       >
         <span className="icon-[material-symbols--list-alt-outline] text-3xl text-primary hover:text-secondary transition"></span>
       </Link>
