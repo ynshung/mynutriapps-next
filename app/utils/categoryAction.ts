@@ -44,6 +44,7 @@ export const mergeCategory = async (fromID: number, mergeToID: number) => {
     })
     .where(eq(foodProductsTable.foodCategoryId, fromID));
   await db.delete(foodCategoryTable).where(eq(foodCategoryTable.id, fromID));
+  refreshFoodCategoryID();
 };
 
 export const changeFoodProductCategory = async (

@@ -113,7 +113,7 @@ export default function FoodProductList({
         {actions === "product" ? (
           <FoodActions id={item.id} />
         ) : (
-          <CategoryProductAction id={item.id} />
+          <CategoryProductAction id={item.id} category={item.categoryId} />
         )}
       </td>
     </tr>
