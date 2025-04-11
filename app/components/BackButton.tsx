@@ -7,10 +7,21 @@ export default function BackButton({ href }: { href?: string }) {
   return (
     <button
       onClick={() => {
+        const parentPath = window.location.pathname.substring(
+          0,
+          window.location.pathname.lastIndexOf("/")
+        );
         if (window.history?.length && window.history.length > 1) {
+          const currentPath = window.location.pathname;
           router.back();
+          setTimeout(() => {
+            if (currentPath === window.location.pathname) {
+              console.log("Back button did not navigate to a different page.");
+              router.replace(href || parentPath);
+            }
+          }, 500);
         } else {
-          router.push(href || "/");
+          router.push(href || parentPath);
         }
       }}
       className="btn btn-circle btn-xl btn-ghost"
