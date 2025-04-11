@@ -56,7 +56,6 @@ export default function FoodProductList({
         <Link
           href={`/dashboard/food-categories/${item.categoryId}`}
           className="hover:text-primary hover:underline transition"
-          prefetch
         >
           {item.category}
         </Link>
