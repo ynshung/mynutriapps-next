@@ -11,7 +11,6 @@ export default async function Page() {
       .select({
         id: foodCategoryTable.id,
         name: foodCategoryTable.name,
-        alias: foodCategoryTable.alias,
         foodProductCount: count(foodProductsTable.foodCategoryId),
       })
       .from(foodCategoryTable)
@@ -26,15 +25,6 @@ export default async function Page() {
       <tr className="hover:bg-base-300 transition" key={item.id}>
         <th>{item.id}</th>
         <td>{item.name}</td>
-        {/* <td>
-          <ul>
-            {item.alias
-              ?.filter((alias) => alias !== item.name)
-              .map((alias) => (
-                <li key={alias}>{alias}</li>
-              ))}
-          </ul>
-        </td> */}
         <td>{item.foodProductCount}</td>
         <td>
           <CategoryAction id={item.id} name={item.name} count={item.foodProductCount} />
@@ -62,7 +52,6 @@ export default async function Page() {
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                {/* <th>Aliases</th> */}
                 <th>Count</th>
                 <th>Actions</th>
               </tr>

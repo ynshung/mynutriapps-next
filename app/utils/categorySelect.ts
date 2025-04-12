@@ -9,7 +9,6 @@ export async function getCategories() {
     .select({
       id: foodCategoryTable.id,
       name: foodCategoryTable.name,
-      alias: foodCategoryTable.alias,
     })
     .from(foodCategoryTable)
     .orderBy(foodCategoryTable.id);
@@ -28,7 +27,6 @@ export async function getCategoriesSelect(id: number): Promise<CategorySelect> {
     .select({
       id: foodCategoryTable.id,
       name: foodCategoryTable.name,
-      alias: foodCategoryTable.alias,
     })
     .from(foodCategoryTable)
     .where(eq(foodCategoryTable.id, id))

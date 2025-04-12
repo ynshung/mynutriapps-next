@@ -18,7 +18,6 @@ export default async function Page({ params }: AppProps) {
     .select({
       id: foodCategoryTable.id,
       name: foodCategoryTable.name,
-      alias: foodCategoryTable.alias,
     })
     .from(foodCategoryTable)
     .where(eq(foodCategoryTable.id, parseInt(id)))
