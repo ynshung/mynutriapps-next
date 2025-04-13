@@ -5,12 +5,12 @@ import { db } from "../db";
 import { foodCategoryTable, foodProductsTable } from "../db/schema";
 import { refreshFoodCategory, refreshFoodCategoryID } from "./revalidate";
 
-export const addCategory = async (id: number, name: string) => {
+export const addCategory = async (name: string, parentID?: number) => {
   await db
     .insert(foodCategoryTable)
     .values({
-      id: id,
       name: name,
+      parentCategory: parentID,
     });
   refreshFoodCategory();
 }

@@ -13,41 +13,40 @@ export default function CategoryAction({
   id,
   name,
   count,
+  parentID,
+  parentName,
+  revalidate,
 }: {
   id: number;
   name: string;
   count: number;
+  parentID?: number;
+  parentName?: string;
+  revalidate?: () => Promise<void>;
 }) {
   const handleAdd = () => {
-    const categoryName = prompt("Enter name for the new category:");
+    const categoryName = prompt(`Enter name for the new ${parentName ? `subcategory under ${parentName}` : 'category'}:`);
     if (!categoryName) {
       return;
     }
-    const categoryID = prompt(
-      "Enter ID for the new category:",
-      (id + 1).toString()
-    );
-    const parsedID = parseInt(categoryID ?? "");
-    if (isNaN(parsedID)) {
-      toast.error("Invalid ID entered.");
-      return;
-    }
 
-    addCategory(parsedID, categoryName).catch((error) => {
-      if (error.message.includes("duplicate")) {
-        toast.error(
-          "Category ID already exists. Please choose a different ID."
-        );
-      } else {
-        toast.error("An unexpected error occurred: " + error.message);
+    addCategory(categoryName, parentID).then(() => {
+      if (revalidate) {
+        revalidate();
       }
+    }).catch((error) => {
+      toast.error("An unexpected error occurred: " + error.message);
     });
   };
 
   const handleEdit = () => {
     const newName = prompt("Enter new name for the category:", name);
     if (newName) {
-      editCategory(id, newName).catch((error) => {
+      editCategory(id, newName).then(() => {
+        if (revalidate) {
+          revalidate();
+        }
+      }).catch((error) => {
         toast.error("Error editing category: " + error.message);
       });
     }
@@ -58,7 +57,11 @@ export default function CategoryAction({
     if (mergeToID) {
       const parsedID = parseInt(mergeToID);
       if (!isNaN(parsedID)) {
-        mergeCategory(id, parsedID).catch((error) => {
+        mergeCategory(id, parsedID).then(() => {
+          if (revalidate) {
+            revalidate();
+          }
+        }).catch((error) => {
           toast.error("Error merging categories: " + error.message);
         });
       } else {
@@ -76,7 +79,11 @@ export default function CategoryAction({
     if (!confirmDelete) {
       return;
     }
-    deleteCategory(id).catch((error) => {
+    deleteCategory(id).then(() => {
+      if (revalidate) {
+        revalidate();
+      }
+    }).catch((error) => {
       toast.error("Error deleting category: " + error.message);
     });
   };
@@ -95,7 +102,11 @@ export default function CategoryAction({
         title="Add category"
         onClick={handleAdd}
       >
-        <span className="icon-[material-symbols-light--add-row-below] text-3xl text-gray-800 hover:text-primary transition"></span>
+        {parentID ? (
+          <span className="icon-[material-symbols--box-add] text-3xl text-gray-800 hover:text-primary transition"></span>
+        ) : (
+          <span className="icon-[material-symbols--add-circle] text-3xl text-gray-800 hover:text-primary transition"></span>
+        )}
       </button>
       {id !== 0 && (
         <>

@@ -1,39 +1,20 @@
-import { db } from "@/app/db";
-import { foodCategoryTable, foodProductsTable } from "@/app/db/schema";
-import React from "react";
+"use client";
+
 import CategoryAction from "@/app/components/CategoryAction";
-import { count, eq } from "drizzle-orm";
+import { CategoryList, getCategoriesParent } from "@/app/utils/fetchCategories";
+import React, { useEffect, useState } from "react";
 
-export default async function Page() {
-  let foodItems = null;
-  try {
-    const data = await db
-      .select({
-        id: foodCategoryTable.id,
-        name: foodCategoryTable.name,
-        foodProductCount: count(foodProductsTable.foodCategoryId),
-      })
-      .from(foodCategoryTable)
-      .leftJoin(
-        foodProductsTable,
-        eq(foodCategoryTable.id, foodProductsTable.foodCategoryId)
-      )
-      .groupBy(foodCategoryTable.id)
-      .orderBy(foodCategoryTable.id);
+export default function Page() {
+  const [foodCategories, setFoodCategories] = useState<CategoryList[]>();
 
-    foodItems = data.map((item) => (
-      <tr className="hover:bg-base-300 transition" key={item.id}>
-        <th>{item.id}</th>
-        <td>{item.name}</td>
-        <td>{item.foodProductCount}</td>
-        <td>
-          <CategoryAction id={item.id} name={item.name} count={item.foodProductCount} />
-        </td>
-      </tr>
-    ));
-  } catch (error) {
-    console.error(error);
-  }
+  const fetchCategories = async () => {
+    const categories = await getCategoriesParent();
+    setFoodCategories(categories);
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   return (
     <main className="m-8">
@@ -52,11 +33,56 @@ export default async function Page() {
               <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Subcategory</th>
                 <th>Count</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>{foodItems}</tbody>
+            <tbody>
+              {foodCategories?.map((item) => (
+                <React.Fragment key={item.id}>
+                  <tr className="">
+                    <th>{item.id}</th>
+                    <td rowSpan={item.children.length === 0 ? 1 : item.children.length + 1} className="font-bold">{item.name}</td>
+                    <td className="italic">Main Category</td>
+                    <td>{item.foodProductCount > 0 && item.foodProductCount}</td>
+                    <td>
+                      <CategoryAction
+                        id={item.id}
+                        name={item.name}
+                        count={item.foodProductCount}
+                        parentID={item.id !== 0 ? item.id : undefined}
+                        parentName={item.id !== 0 ? item.name : undefined}
+                        revalidate={() => fetchCategories()}
+                      />
+                    </td>
+                  </tr>
+                  {item.children.map((child) => (
+                    <tr className="" key={child.id}>
+                      <th>{child.id}</th>
+                      <td>{child.name}</td>
+                      <td>{child.foodProductCount}</td>
+                      <td>
+                        <CategoryAction
+                          id={child.id}
+                          name={child.name}
+                          count={item.foodProductCount}
+                          parentID={item.id}
+                          parentName={item.name}
+                          revalidate={() => fetchCategories()}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>  
+              )) || (
+                <tr>
+                  <td colSpan={4} className="text-center">
+                    <span className="loading loading-spinner loading-xl"></span>
+                  </td>
+                </tr>
+              )}
+            </tbody>
           </table>
         </div>
       </div>

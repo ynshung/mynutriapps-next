@@ -72,23 +72,21 @@ export const inferenceImage = async (
   } = await response.json();
   if (response.ok && status === "success") {
     if (data.frontLabelData) {
-      if (data.frontLabelData) {
-        setFrontLabelData((prev) => {
-          if (!data.frontLabelData) return prev;
-          return {
-            ...prev,
-            ...data.frontLabelData,
-            name: data.frontLabelData.name || prev?.name || "",
-            brand: data.frontLabelData.brand || prev?.brand || "",
-            category: categories.find(
-              (cat) =>
-                data.frontLabelData?.category &&
-                cat.label === data.frontLabelData.category
-            ) ||
-              prev?.category || { value: 0, label: "" },
-          };
-        });
-      }
+      setFrontLabelData((prev) => {
+        if (!data.frontLabelData) return prev;
+        return {
+          ...prev,
+          ...data.frontLabelData,
+          name: data.frontLabelData.name || prev?.name || "",
+          brand: data.frontLabelData.brand || prev?.brand || "",
+          category: categories.find(
+            (cat) =>
+              data.frontLabelData?.category &&
+              cat.label === data.frontLabelData.category
+          ) ||
+            prev?.category || { value: 0, label: "Uncategorized" },
+        };
+      });
     }
     if (data.nutritionLabelData) {
       if (!data.nutritionLabelData.extractableTable) {

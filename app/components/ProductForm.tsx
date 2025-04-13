@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
-import { getCategories } from "../utils/categorySelect";
+import { getCategoriesSelect } from "../utils/categorySelect";
 import {
   CategorySelect,
   FoodIngredientDetails,
@@ -65,7 +65,7 @@ export default function ProductForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    getCategories().then((data) => setCategories(data));
+    getCategoriesSelect().then((data) => setCategories(data));
     return () => setCategories([]);
   }, []);
 
@@ -586,12 +586,14 @@ export default function ProductForm({
           </form>
           {imageModalSrc && (
             <div className="relative w-full h-full">
-              <Image
-                src={imageModalSrc}
-                alt="Modal image"
-                fill
-                className="w-full h-full object-contain"
-              />
+              <a href={imageModalSrc} target="_blank" className="cursor-zoom-in">
+                <Image
+                  src={imageModalSrc}
+                  alt="Modal image"
+                  fill
+                  className="w-full h-full object-contain"
+                />
+              </a>
             </div>
           )}
         </div>

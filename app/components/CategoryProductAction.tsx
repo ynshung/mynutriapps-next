@@ -5,7 +5,7 @@ import deleteProduct from "../utils/deleteProduct";
 import { changeFoodProductCategory } from "../utils/categoryAction";
 import { useModal } from "../context/ModalContext";
 import dynamic from "next/dynamic";
-import { getCategories } from "../utils/categorySelect";
+import { getCategoriesSelect } from "../utils/categorySelect";
 import { GroupBase, Options, SelectInstance } from "react-select";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
@@ -22,7 +22,7 @@ export default function CategoryProductAction({
     React.useRef<SelectInstance<unknown, boolean, GroupBase<unknown>>>(null);
 
   const handleChangeCategory = async () => {
-    const categories = await getCategories();
+    const categories = await getCategoriesSelect();
     const stopFocus = setInterval(() => {
       if (selectRef.current) {
         selectRef.current.focus();
@@ -49,7 +49,7 @@ export default function CategoryProductAction({
               | undefined;
             if (categoryID) {
               hideModal();
-              if (categoryID[0].value !== category) {
+              if (categoryID[0] && categoryID[0].value !== category) {
                 await changeFoodProductCategory(id, categoryID[0].value);
               }
             }
