@@ -170,7 +170,6 @@ export default function Page() {
 
     if (existingProduct.length > 0) {
       productImage.status = `Exists: ${existingProduct.map((p) => p.id).join(", ")}`;
-      return;
     } else {
       productImage.status = "Not Added";
     }
