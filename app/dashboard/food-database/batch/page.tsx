@@ -170,8 +170,6 @@ export default function Page() {
 
     if (existingProduct.length > 0) {
       productImage.status = `Exists: ${existingProduct.map((p) => p.id).join(", ")}`;
-      // TODO: temporarily remove the product from the list
-      setProducts((prev) => prev.filter((p) => p.barcode !== barcode));
       return;
     } else {
       productImage.status = "Not Added";
