@@ -77,7 +77,7 @@ export default function Page() {
                 </React.Fragment>  
               )) || (
                 <tr>
-                  <td colSpan={4} className="text-center">
+                  <td colSpan={5} className="text-center">
                     <span className="loading loading-spinner loading-xl"></span>
                   </td>
                 </tr>
