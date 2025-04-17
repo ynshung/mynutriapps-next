@@ -11,7 +11,7 @@ export interface FoodProductDatabaseType {
   barcode: string[] | null;
   brand: string | null;
   category: string;
-  categoryId: number | null;
+  categoryId: number;
   images: {
     front?: typeof imagesTable.$inferSelect;
     nutritional_table?: typeof imagesTable.$inferSelect;

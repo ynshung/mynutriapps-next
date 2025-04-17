@@ -3,11 +3,10 @@ import ProductForm from "@/app/components/ProductForm";
 import { db } from "@/app/db";
 import { foodProductsTable } from "@/app/db/schema";
 import { count, eq } from "drizzle-orm";
-import { AppProps } from "next/dist/shared/lib/router/router";
 import { notFound } from "next/navigation";
 import React from "react";
 
-export default async function Page({ params }: AppProps) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   const product = await db

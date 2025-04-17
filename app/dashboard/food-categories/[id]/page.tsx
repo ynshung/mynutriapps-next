@@ -8,11 +8,10 @@ import {
   imagesTable,
 } from "@/app/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { AppProps } from "next/dist/shared/lib/router/router";
 import { notFound } from "next/navigation";
 import React from "react";
 
-export default async function Page({ params }: AppProps) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const categoryQuery = await db
     .select({
