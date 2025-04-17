@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "mynutriapps.s3.ap-southeast-5.amazonaws.com"
+        hostname: "mna-sg.s3.ap-southeast-1.amazonaws.com"
       },
       {
         protocol: "https",
