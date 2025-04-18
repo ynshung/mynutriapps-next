@@ -34,8 +34,9 @@ export async function middleware(request: NextRequest) {
       } 
     },
     handleError: async (error) => {
-      console.error('Unhandled authentication error', {error});
-      return redirectToHome(request);
+      console.error('Unhandled authentication error', {error});      
+      if (request.nextUrl.pathname !== "/") return redirectToHome(request);
+      return NextResponse.next();
     }
   });
 }
