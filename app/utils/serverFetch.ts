@@ -38,11 +38,7 @@ export const serverInferenceImage = async (
       data: {},
     }
   }
-  return {
-    status: "success",
-    message: "success",
-    data: await response.json(),
-  }
+  return await response.json();
 }
 
 export const serverSubmitProduct = async (
