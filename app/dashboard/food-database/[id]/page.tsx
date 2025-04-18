@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <main className="m-8">
+    <main className="mx-4 my-8 lg:m-8">
       <div className="flex flex-row gap-4 items-center">
         <BackButton href="/dashboard/food-database" />
         <div>

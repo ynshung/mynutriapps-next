@@ -111,7 +111,7 @@ export default async function Page({
   }
 
   return (
-    <main className="m-8">
+    <main className="mx-4 my-8 lg:m-8">
       <div className="flex flex-row gap-2 items-center">
         <span className="icon-[material-symbols--grocery] text-5xl mx-2"></span>
         <div>
