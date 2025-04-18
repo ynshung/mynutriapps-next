@@ -35,10 +35,12 @@ export const serverInferenceImage = async (
     return {
       status: "error",
       message: await response.text(),
+      data: {},
     }
   }
   return {
     status: "success",
+    message: "success",
     data: await response.json(),
   }
 }
