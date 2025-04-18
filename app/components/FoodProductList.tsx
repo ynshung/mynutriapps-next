@@ -102,7 +102,7 @@ export default function FoodProductList({
           data-tip={item.verified ? "Verified" : "Unverified"}
         >
           {item.verified ? (
-            <span className="icon-[material-symbols--verified] text-4xl text-primary"></span>
+            <span className="icon-[material-symbols--verified] text-3xl text-primary"></span>
           ) : (
             <span className="icon-[material-symbols--pending] text-3xl text-gray-400"></span>
           )}
