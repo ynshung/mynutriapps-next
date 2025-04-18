@@ -6,6 +6,7 @@ import { useUser } from "@/app/context/UserContext";
 import { findExistingBarcode } from "@/app/utils/getProduct";
 import { isValidEAN13 } from "@/app/utils/isValidEAN13";
 import { filterKeyList, getProductImageUrl } from "@/app/utils/openFoodFacts";
+import { serverCreateFromURL } from "@/app/utils/serverFetch";
 import React, { useEffect, useRef, useState } from "react";
 import Barcode from "react-barcode";
 import { toast } from "react-toastify";
@@ -88,43 +89,35 @@ export default function Page() {
           p.barcode === product.barcode ? { ...p, status: product.status } : p
         )
       );
-  
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_SERVER_URL +
-          "/api/v1/admin/product/create-from-url",
+
+      const response = await serverCreateFromURL(
         {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${await user?.getIdToken()}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            barcode: product.barcode,
-            frontLabel: product.front
-              ? getProductImageUrl(product.barcode, product.front.imgid, false)
-              : undefined,
-            nutritionLabel: product.nutrition
-              ? getProductImageUrl(product.barcode, product.nutrition.imgid, false)
-              : undefined,
-            ingredients: product.ingredients
-              ? getProductImageUrl(product.barcode, product.ingredients.imgid, false)
-              : undefined,
-          }),
-        }
+          barcode: product.barcode,
+          frontLabel: product.front
+            ? getProductImageUrl(product.barcode, product.front.imgid, false)
+            : undefined,
+          nutritionLabel: product.nutrition
+            ? getProductImageUrl(product.barcode, product.nutrition.imgid, false)
+            : undefined,
+          ingredients: product.ingredients
+            ? getProductImageUrl(product.barcode, product.ingredients.imgid, false)
+            : undefined,
+        },
+        await user?.getIdToken(),
       );
-  
+      console.log(response)
+
       // TODO: Show if there are any missing response
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === "success") {
         setProducts((prev) =>
           prev.map((p) =>
             p.barcode === product.barcode
-              ? { ...p, productId: data.productId, status: "Added" }
+              ? { ...p, productId: response.productId, status: "Added" }
               : p
           )
         );
       } else {
-        const responseBody = await response.text();
+        const responseBody = response.message;
         console.error("Failed to add product!", responseBody);
         if (responseBody.includes("429 Too Many Requests")) {
           toast.error("API is overloaded. Please try again later!");

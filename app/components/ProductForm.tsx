@@ -22,6 +22,7 @@ import { inferenceImage } from "../utils/inferenceImage";
 import { toast } from "react-toastify";
 import { getProduct } from "../utils/getProduct";
 import { dbToForm } from "../utils/dbToForm";
+import { serverEditProduct, serverSubmitProduct } from "../utils/serverFetch";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 const CreatableSelect = dynamic(() => import("react-select/creatable"), {
@@ -55,9 +56,6 @@ export default function ProductForm({
   );
   const [ingredientDetails, setIngredientDetails] =
     useState<FoodIngredientDetails>({} as FoodIngredientDetails);
-
-  const SERVER_URL =
-    process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
   const { user } = useUser();
   const [categories, setCategories] = useState<CategorySelect[]>([]);
@@ -115,7 +113,6 @@ export default function ProductForm({
         setNutritionInfo,
         setIngredientDetails,
         categories,
-        SERVER_URL
       );
     } else if (submitter.value === "submit") {
       handleSubmitProduct(formData);
@@ -125,37 +122,19 @@ export default function ProductForm({
   const handleSubmitProduct = async (formData: FormData) => {
     setIsSubmitting(true);
     if (editingProduct === undefined) {
-      const response = await fetch(
-        SERVER_URL + "/api/v1/admin/product/submit",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${await user?.getIdToken()}`,
-          },
-        }
-      );
-      if (response.ok) {
+      const response = await serverSubmitProduct(formData, await user?.getIdToken());
+      if (response.status === "success") {
         toast("Product submitted successfully", { type: "success" });
       } else {
-        const errorMessage = await response.text();
+        const errorMessage = response.message;
         toast(`Error submitting product: ${errorMessage}`, { type: "error" });
       }
     } else {
-      const response = await fetch(
-        SERVER_URL + `/api/v1/admin/product/edit/${editingProduct}`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${await user?.getIdToken()}`,
-          },
-        }
-      );
-      if (response.ok) {
+      const response = await serverEditProduct(editingProduct, formData, await user?.getIdToken());
+      if (response.status === "success") {
         toast("Product edited successfully", { type: "success" });
       } else {
-        const errorMessage = await response.text();
+        const errorMessage = response.message;
         toast(`Error submitting product: ${errorMessage}`, { type: "error" });
       }
     }

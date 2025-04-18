@@ -13,6 +13,7 @@ import { vitamins } from "../data/vitamins";
 import { minerals } from "../data/minerals";
 import { allergens } from "../data/allergens";
 import React from "react";
+import { serverInferenceImage } from "./serverFetch";
 
 export const inferenceImage = async (
   formData: FormData,
@@ -24,7 +25,6 @@ export const inferenceImage = async (
     React.SetStateAction<FoodIngredientDetails>
   >,
   categories: CategorySelect[],
-  serverUrl: string = "http://localhost:3000",
 ) => {
   const inferenceFormData = new FormData();
   
@@ -43,20 +43,9 @@ export const inferenceImage = async (
   }
 
   const idToken = await user?.getIdToken();
-  if (!idToken) {
-    toast("Error getting user token", { type: "error" });
-    return;
-  }
 
   setIsInferencing(true);
 
-  const response = await fetch(serverUrl + "/api/v1/admin/product/inference", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${idToken}`,
-    },
-    body: inferenceFormData,
-  });
   const {
     data,
     status,
@@ -69,8 +58,11 @@ export const inferenceImage = async (
       nutritionLabelData?: NutritionInfoSingleServer;
       ingredientsLabelData?: FoodIngredientDetailsServer;
     };
-  } = await response.json();
-  if (response.ok && status === "success") {
+  } = await serverInferenceImage(
+    inferenceFormData,
+    idToken
+  );
+  if (status === "success") {
     if (data.frontLabelData) {
       setFrontLabelData((prev) => {
         if (!data.frontLabelData) return prev;
