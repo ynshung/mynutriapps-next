@@ -166,7 +166,7 @@ export default function ProductForm({
     <>
       <form
         onSubmit={handleSubmit}
-        className="flex gap-2 w-full flex-wrap lg:flex-nowrap"
+        className="flex gap-2 w-full flex-wrap lg:flex-nowrap justify-center"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -225,7 +225,7 @@ export default function ProductForm({
             AI Inference
           </button>
         </div>
-        <div className="mt-4 p-4 bg-base-100 rounded shadow grow flex flex-col max-w-4/5">
+        <div className="mt-4 p-4 bg-base-100 rounded shadow grow flex flex-col lg:max-w-4/5">
           <h2 className="text-lg font-bold mb-2">General Info</h2>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 items-center flex-wrap">

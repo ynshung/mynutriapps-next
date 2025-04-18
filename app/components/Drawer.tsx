@@ -56,10 +56,19 @@ export default function Drawer({ children }: DrawerProps) {
   }
 
   return (
-    <div className="drawer drawer-open">
+    <div className="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">{children}</div>
-      <div className="drawer-side">
+      <div className="drawer-content">
+        <label
+          htmlFor="my-drawer-2"
+          className="btn btn-primary btn-circle btn-lg drawer-button shadow-lg lg:hidden mx-6 mt-4 fixed z-10"
+        >
+          <span className="icon-[material-symbols--menu] text-xl"></span>
+        </label>
+        <div className="py-6 lg:py-0"></div>
+        {children}
+      </div>
+      <div className="drawer-side z-20">
         <label
           htmlFor="my-drawer-2"
           aria-label="close sidebar"
