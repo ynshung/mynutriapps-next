@@ -10,10 +10,10 @@ import React from "react";
 import Link from "next/link";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
 import FoodProductList from "@/app/components/FoodProductList";
-import JumpPage from "@/app/components/JumpPage";
 import Form from "next/form";
 import { searchProductsMS } from "@/app/utils/minisearch";
 import { notFound } from "next/navigation";
+import { Pagination } from "@/app/components/Pagination";
 
 export default async function Page({
   searchParams,
@@ -136,8 +136,9 @@ export default async function Page({
             <button className="btn btn-primary join-item" type="submit">Search</button>
           </Form>
           <Pagination
+            url="/dashboard/food-database"
             currPage={currPage}
-            search={typeof search === "string" ? search : undefined}
+            queries={typeof search === "string" ? `search=${search}` : undefined}
             totalPages={totalPages}
           />
           <div className="col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
@@ -161,47 +162,12 @@ export default async function Page({
 
         <FoodProductList data={data} actions="product" />
         <Pagination
+          url="/dashboard/food-database"
           currPage={currPage}
-          search={typeof search === "string" ? search : undefined}
+          queries={typeof search === "string" ? `search=${search}` : undefined}
           totalPages={totalPages}
         />
       </div>
     </main>
   );
 }
-
-const Pagination = ({
-  currPage,
-  search,
-  totalPages,
-}: {
-  currPage: number;
-  search?: string;
-  totalPages: number;
-}) => (
-  <div className="flex justify-center">
-    <div className="join">
-      {currPage !== 0 && (
-        <Link
-          href={`/dashboard/food-database?page=${currPage - 1}${
-            search ? `&search=${search}` : ""
-          }`}
-          className="join-item btn"
-        >
-          «
-        </Link>
-      )}
-      <JumpPage currPage={currPage} total={totalPages} />
-      {totalPages > currPage + 1 && (
-        <Link
-          href={`/dashboard/food-database?page=${currPage + 1}${
-            search ? `&search=${search}` : ""
-          }`}
-          className="join-item btn"
-        >
-          »
-        </Link>
-      )}
-    </div>
-  </div>
-);
