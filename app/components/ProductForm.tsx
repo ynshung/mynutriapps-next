@@ -81,6 +81,9 @@ export default function ProductForm({
         setNutritionInfo(formData.nutritionInfo ?? {});
         setIngredientDetails(formData.ingredientDetails);
         setFoodProductPreview(formData.foodProductPreview);
+        if (formData.frontLabel.name) {
+          document.title = `${formData.frontLabel.name} - MyNutriApps Admin`;
+        }
       });
     }
   }, [initialProduct]);

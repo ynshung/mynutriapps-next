@@ -1,7 +1,11 @@
-"use client";
 import React from "react";
 import ProductForm from "@/app/components/ProductForm";
 import BackButton from "@/app/components/BackButton";
+import { Metadata } from "next";
+ 
+export const metadata: Metadata = {
+  title: 'New Product',
+};
 
 export default function Page() {
   return (

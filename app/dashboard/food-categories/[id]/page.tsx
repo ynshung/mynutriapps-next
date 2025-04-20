@@ -9,8 +9,34 @@ import {
   imagesTable,
 } from "@/app/db/schema";
 import { count, desc, eq, sql } from "drizzle-orm";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import React from "react";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const { id } = params;
+
+  const categoryQuery = await db
+    .select({
+      name: foodCategoryTable.name,
+    })
+    .from(foodCategoryTable)
+    .where(eq(foodCategoryTable.id, parseInt(id)))
+    .execute();
+
+  if (!categoryQuery || categoryQuery.length === 0) {
+    notFound();
+  }
+
+  const category = categoryQuery[0];
+  return {
+    title: `${category.name} (Category)`,
+  };
+}
 
 export default async function Page({
   params,

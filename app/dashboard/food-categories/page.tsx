@@ -13,6 +13,7 @@ export default function Page() {
   };
 
   useEffect(() => {
+    document.title = "Food Categories - MyNutriApps Admin";
     fetchCategories();
   }, []);
 

@@ -14,6 +14,11 @@ import Form from "next/form";
 import { searchProductsMS } from "@/app/utils/minisearch";
 import { notFound } from "next/navigation";
 import { Pagination } from "@/app/components/Pagination";
+import { Metadata } from 'next';
+ 
+export const metadata: Metadata = {
+  title: 'Food Database',
+};
 
 export default async function Page({
   searchParams,
@@ -111,63 +116,71 @@ export default async function Page({
   }
 
   return (
-    <main className="mx-4 my-8 lg:m-8">
-      <div className="flex flex-row gap-2 items-center">
-        <span className="icon-[material-symbols--grocery] text-5xl mx-2"></span>
-        <div>
-          <h1 className="text-2xl font-bold">Food Database</h1>
-          <p>Manage food items in the database.</p>
-        </div>
-      </div>
-
-      <div className="mt-4 p-4 bg-base-100 rounded shadow">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
-          <Form action="/dashboard/food-database" className="join">
-            <label className="input join-item">
-              <span className="icon-[material-symbols--search-rounded] text-2xl"></span>
-              <input
-                name="search"
-                type="search"
-                className="grow"
-                placeholder="Search"
-                defaultValue={search}
-              />
-            </label>
-            <button className="btn btn-primary join-item" type="submit">Search</button>
-          </Form>
-          <Pagination
-            url="/dashboard/food-database"
-            currPage={currPage}
-            queries={typeof search === "string" ? `search=${search}` : undefined}
-            totalPages={totalPages}
-          />
-          <div className="col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
-            <Link
-              href="/dashboard/food-database/new-product"
-              className="btn btn-primary btn-circle transition"
-              title="Add Product"
-            >
-              <span className="icon-[material-symbols--add] text-2xl"></span>
-            </Link>
-            <Link
-              href="/dashboard/food-database/batch"
-              className="btn btn-primary btn-circle transition"
-              title="Batch Add Product"
-            >
-              <span className="icon-[material-symbols--shadow-add] text-2xl"></span>
-            </Link>
-            <RefreshFoodProduct />
+    <>
+      <main className="mx-4 my-8 lg:m-8">
+        <div className="flex flex-row gap-2 items-center">
+          <span className="icon-[material-symbols--grocery] text-5xl mx-2"></span>
+          <div>
+            <h1 className="text-2xl font-bold">Food Database</h1>
+            <p>Manage food items in the database.</p>
           </div>
         </div>
 
-        <FoodProductList data={data} actions="product" />
-        <Pagination
-          url="/dashboard/food-database"
-          currPage={currPage}
-          queries={typeof search === "string" ? `search=${search}` : undefined}
-          totalPages={totalPages}
-        />
-      </div>
-    </main>
+        <div className="mt-4 p-4 bg-base-100 rounded shadow">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
+            <Form action="/dashboard/food-database" className="join">
+              <label className="input join-item">
+                <span className="icon-[material-symbols--search-rounded] text-2xl"></span>
+                <input
+                  name="search"
+                  type="search"
+                  className="grow"
+                  placeholder="Search"
+                  defaultValue={search}
+                />
+              </label>
+              <button className="btn btn-primary join-item" type="submit">
+                Search
+              </button>
+            </Form>
+            <Pagination
+              url="/dashboard/food-database"
+              currPage={currPage}
+              queries={
+                typeof search === "string" ? `search=${search}` : undefined
+              }
+              totalPages={totalPages}
+            />
+            <div className="col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
+              <Link
+                href="/dashboard/food-database/new-product"
+                className="btn btn-primary btn-circle transition"
+                title="Add Product"
+              >
+                <span className="icon-[material-symbols--add] text-2xl"></span>
+              </Link>
+              <Link
+                href="/dashboard/food-database/batch"
+                className="btn btn-primary btn-circle transition"
+                title="Batch Add Product"
+              >
+                <span className="icon-[material-symbols--shadow-add] text-2xl"></span>
+              </Link>
+              <RefreshFoodProduct />
+            </div>
+          </div>
+
+          <FoodProductList data={data} actions="product" />
+          <Pagination
+            url="/dashboard/food-database"
+            currPage={currPage}
+            queries={
+              typeof search === "string" ? `search=${search}` : undefined
+            }
+            totalPages={totalPages}
+          />
+        </div>
+      </main>
+    </>
   );
 }

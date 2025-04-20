@@ -64,6 +64,8 @@ export default function Page() {
 
   // TODO: Currently only works on refresh and not Next.js routing
   useEffect(() => {
+    document.title = "Batch Add Products";
+
     function beforeUnload(e: BeforeUnloadEvent) {
       e.preventDefault();
     }

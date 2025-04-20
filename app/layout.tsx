@@ -17,7 +17,10 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MyNutriApps",
+  title: {
+    default: "MyNutriApps Admin Dashboard",
+    template: "%s - MyNutriApps Admin",
+  },
   description: "MyNutriApps Admin Dashboard",
 };
 
