@@ -26,7 +26,7 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { page, search } = await searchParams;
-  const productsPerPage = 10;
+  const productsPerPage = 30;
 
   let currPage = 0;
   if (typeof page === "string" && !isNaN(parseInt(page))) {
