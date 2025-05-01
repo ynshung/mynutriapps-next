@@ -47,6 +47,16 @@ export const mergeCategory = async (fromID: number, mergeToID: number) => {
   refreshFoodCategoryID();
 };
 
+export const arrangeCategory = async (categoryID: number, sequence: number) => {
+  await db
+    .update(foodCategoryTable)
+    .set({
+      sequence: sequence,
+    })
+    .where(eq(foodCategoryTable.id, categoryID));
+  refreshFoodCategory();
+}
+
 export const changeFoodProductCategory = async (
   productID: number,
   categoryID: number

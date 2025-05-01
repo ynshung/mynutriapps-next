@@ -33,6 +33,7 @@ export default function Page() {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Sequence</th>
                 <th>Name</th>
                 <th>Subcategory</th>
                 <th>Count</th>
@@ -44,6 +45,7 @@ export default function Page() {
                 <React.Fragment key={item.id}>
                   <tr className="">
                     <th>{item.id}</th>
+                    <td>{item.sequence}</td>
                     <td rowSpan={item.children.length === 0 ? 1 : item.children.length + 1} className="font-bold">{item.name}</td>
                     <td className="italic">Main Category</td>
                     <td>{item.foodProductCount > 0 && item.foodProductCount}</td>
@@ -54,6 +56,7 @@ export default function Page() {
                         count={item.foodProductCount}
                         parentID={item.id !== 0 ? item.id : undefined}
                         parentName={item.id !== 0 ? item.name : undefined}
+                        sequence={item.sequence}
                         revalidate={() => fetchCategories()}
                       />
                     </td>
@@ -61,6 +64,7 @@ export default function Page() {
                   {item.children.map((child) => (
                     <tr className="" key={child.id}>
                       <th>{child.id}</th>
+                      <td>{child.sequence}</td>
                       <td>{child.name}</td>
                       <td>{child.foodProductCount}</td>
                       <td>
@@ -70,6 +74,7 @@ export default function Page() {
                           count={item.foodProductCount}
                           parentID={item.id}
                           parentName={item.name}
+                          sequence={child.sequence}
                           revalidate={() => fetchCategories()}
                         />
                       </td>

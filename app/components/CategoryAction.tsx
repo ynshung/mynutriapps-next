@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import {
   addCategory,
+  arrangeCategory,
   deleteCategory,
   editCategory,
   mergeCategory,
@@ -15,11 +16,13 @@ export default function CategoryAction({
   count,
   parentID,
   parentName,
+  sequence,
   revalidate,
 }: {
   id: number;
   name: string;
   count: number;
+  sequence: number;
   parentID?: number;
   parentName?: string;
   revalidate?: () => Promise<void>;
@@ -69,6 +72,23 @@ export default function CategoryAction({
       }
     }
   };
+
+  const handleArrange = () => {
+    const newSequence = prompt("Enter new sequence number for the category:", sequence.toString());
+    if (newSequence) {
+      const parsedSequence = parseInt(newSequence);
+      if (!isNaN(parsedSequence)) {
+
+        arrangeCategory(id, parsedSequence).then(() => {
+          if (revalidate) {
+            revalidate();
+          }
+        }).catch((error) => {
+          toast.error("Error arranging category: " + error.message);
+        });
+      }
+    }
+  }
 
   const handleDelete = () => {
     const confirmDelete = confirm(
@@ -123,6 +143,13 @@ export default function CategoryAction({
             onClick={handleMerge}
           >
             <span className="icon-[material-symbols--merge] text-3xl text-gray-800 hover:text-primary transition"></span>
+          </button>
+          <button
+            className="cursor-pointer"
+            title="Arrange"
+            onClick={handleArrange}
+          >
+            <span className="icon-[material-symbols--sort] text-3xl text-gray-800 hover:text-primary transition"></span>
           </button>
           <button
             className="cursor-pointer"
