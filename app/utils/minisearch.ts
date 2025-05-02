@@ -6,7 +6,7 @@ import {
   imageFoodProductsTable,
   imagesTable,
 } from "../db/schema";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { FoodProductDatabaseType } from "../components/FoodProductList";
 
 type ProductSearchResult = {
@@ -58,16 +58,19 @@ export const searchProductsMS = async (
   const idList = result.map((r) => r.id).slice(page * limit, (page + 1) * limit);
 
   const dbQuery = await db
-    .select({
+    .selectDistinctOn([foodProductsTable.id], {
       id: foodProductsTable.id,
       name: foodProductsTable.name,
       barcode: foodProductsTable.barcode,
       brand: foodProductsTable.brand,
       category: foodCategoryTable.name,
       categoryId: foodProductsTable.foodCategoryId,
-      image: imagesTable.imageKey,
-      imageKeys: sql<typeof imagesTable.$inferSelect[]>`json_agg(${imagesTable})`,
-      imageType: sql<typeof imageFoodProductsTable.$inferSelect[]>`json_agg(${imageFoodProductsTable})`,
+      imageKeys: sql<
+        (typeof imagesTable.$inferSelect)[]
+      >`json_agg(${imagesTable})`,
+      imageType: sql<
+        (typeof imageFoodProductsTable.$inferSelect)[]
+      >`json_agg(${imageFoodProductsTable})`,
       verified: foodProductsTable.verified,
     })
     .from(foodProductsTable)
@@ -75,22 +78,15 @@ export const searchProductsMS = async (
       imageFoodProductsTable,
       eq(imageFoodProductsTable.foodProductId, foodProductsTable.id)
     )
-    .innerJoin(imagesTable, eq(imageFoodProductsTable.imageId, imagesTable.id))
+    .innerJoin(
+      imagesTable,
+      eq(imageFoodProductsTable.imageId, imagesTable.id)
+    )
     .innerJoin(
       foodCategoryTable,
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
     )
-    .where(
-      and(
-        inArray(foodProductsTable.id, idList),
-        eq(imageFoodProductsTable.type, "front")
-      )
-    )
-    .orderBy(
-      sql`ARRAY_POSITION(ARRAY[${sql.join(idList, sql`, `)}]::INTEGER[], ${
-        foodProductsTable.id
-      })`
-    )
+    .where(inArray(foodProductsTable.id, idList))
     .groupBy(
       foodProductsTable.id,
       foodProductsTable.name,
@@ -98,10 +94,8 @@ export const searchProductsMS = async (
       foodProductsTable.brand,
       foodCategoryTable.name,
       foodProductsTable.foodCategoryId,
-      foodProductsTable.verified,
-      imagesTable.imageKey,
-      imageFoodProductsTable.type
-    )
+      foodProductsTable.verified
+    );
 
   const productData = dbQuery.map((item) => {
     const imageType = item.imageType;
@@ -118,5 +112,9 @@ export const searchProductsMS = async (
     };
   });
 
-  return {data: productData, total: result.length};
+  const sortedData = idList.map((id) =>
+    productData.find((product) => product.id === id)
+  ).filter(Boolean) as FoodProductDatabaseType[];
+
+  return { data: sortedData, total: result.length };
 };
