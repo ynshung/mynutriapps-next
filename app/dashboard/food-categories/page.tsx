@@ -2,6 +2,7 @@
 
 import CategoryAction from "@/app/components/CategoryAction";
 import { CategoryList, getCategoriesParent } from "@/app/utils/fetchCategories";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 export default function Page() {
@@ -35,6 +36,7 @@ export default function Page() {
                 <th>ID</th>
                 <th>Sequence</th>
                 <th>Name</th>
+                <th>Image</th>
                 <th>Subcategory</th>
                 <th>Count</th>
                 <th>Actions</th>
@@ -47,6 +49,7 @@ export default function Page() {
                     <th>{item.id}</th>
                     <td>{item.sequence}</td>
                     <td rowSpan={item.children.length === 0 ? 1 : item.children.length + 1} className="font-bold">{item.name}</td>
+                    <td></td>
                     <td className="italic">Main Category</td>
                     <td>{item.foodProductCount > 0 && item.foodProductCount}</td>
                     <td>
@@ -65,6 +68,9 @@ export default function Page() {
                     <tr className="" key={child.id}>
                       <th>{child.id}</th>
                       <td>{child.sequence}</td>
+                      <td>{child.imageKey && 
+                        <Image src={`${process.env.NEXT_PUBLIC_S3_URL}/${child.imageKey}`} alt={child.name} width={128} height={128} />
+                      }</td>
                       <td>{child.name}</td>
                       <td>{child.foodProductCount}</td>
                       <td>
@@ -83,7 +89,7 @@ export default function Page() {
                 </React.Fragment>  
               )) || (
                 <tr>
-                  <td colSpan={5} className="text-center">
+                  <td colSpan={7} className="text-center">
                     <span className="loading loading-spinner loading-xl"></span>
                   </td>
                 </tr>

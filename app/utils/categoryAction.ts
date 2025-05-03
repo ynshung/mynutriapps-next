@@ -1,8 +1,8 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
-import { foodCategoryTable, foodProductsTable } from "../db/schema";
+import { foodCategoryTable, foodProductsTable, imageFoodProductsTable, imagesTable } from "../db/schema";
 import { refreshFoodCategory, refreshFoodCategoryID } from "./revalidate";
 
 export const addCategory = async (name: string, parentID?: number) => {
@@ -20,6 +20,35 @@ export const editCategory = async (id: number, name: string) => {
     .update(foodCategoryTable)
     .set({
       name: name,
+    })
+    .where(eq(foodCategoryTable.id, id));
+  refreshFoodCategory();
+};
+
+export const editCategoryImage = async (id: number, productID: number) => {
+  const imageID = await db
+    .select({
+      image: imageFoodProductsTable.imageId,
+    })
+    .from(imageFoodProductsTable)
+    .innerJoin(
+      imagesTable,
+      eq(imageFoodProductsTable.imageId, imagesTable.id)
+    )
+    .where(
+      and(
+        eq(imageFoodProductsTable.foodProductId, productID),
+        eq(imageFoodProductsTable.type, "front")
+      )
+    )
+    .orderBy(desc(imagesTable.uploadedAt));
+
+  const image = imageID[0]?.image;
+
+  await db
+    .update(foodCategoryTable)
+    .set({
+      image: image,
     })
     .where(eq(foodCategoryTable.id, id));
   refreshFoodCategory();

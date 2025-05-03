@@ -6,6 +6,7 @@ import {
   arrangeCategory,
   deleteCategory,
   editCategory,
+  editCategoryImage,
   mergeCategory,
 } from "../utils/categoryAction";
 import { toast } from "react-toastify";
@@ -27,6 +28,7 @@ export default function CategoryAction({
   parentName?: string;
   revalidate?: () => Promise<void>;
 }) {
+  const isParent = id === parentID;
   const handleAdd = () => {
     const categoryName = prompt(`Enter name for the new ${parentName ? `subcategory under ${parentName}` : 'category'}:`);
     if (!categoryName) {
@@ -54,6 +56,19 @@ export default function CategoryAction({
       });
     }
   };
+
+  const handleImage = () => {
+    const imageUrl = prompt("Enter the product ID image for the category:", "");
+    if (imageUrl) {
+      editCategoryImage(id, parseInt(imageUrl)).then(() => {
+        if (revalidate) {
+          revalidate();
+        }
+      }).catch((error) => {
+        toast.error("Error editing category image: " + error.message);
+      });
+    }
+  }
 
   const handleMerge = () => {
     const mergeToID = prompt("Enter the ID of the category to merge into:");
@@ -122,7 +137,7 @@ export default function CategoryAction({
         title="Add category"
         onClick={handleAdd}
       >
-        {parentID ? (
+        {isParent ? (
           <span className="icon-[material-symbols--box-add] text-3xl text-gray-800 hover:text-primary transition"></span>
         ) : (
           <span className="icon-[material-symbols--add-circle] text-3xl text-gray-800 hover:text-primary transition"></span>
@@ -158,6 +173,13 @@ export default function CategoryAction({
           >
             <span className="icon-[mdi--bin] text-3xl text-gray-800 hover:text-error transition"></span>
           </button>
+          {!isParent && <button
+            className="cursor-pointer"
+            title="Edit image"
+            onClick={handleImage}
+          >
+            <span className="icon-[mdi--image-plus] text-3xl text-gray-800 hover:text-primary transition"></span>
+          </button>}
         </>
       )}
     </span>
