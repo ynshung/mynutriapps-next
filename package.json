@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.0",
+    "drizzle-orm": "^0.43.1",
+    "drizzle-seed": "^0.3.1",
     "firebase": "^11.4.0",
     "minisearch": "^7.1.2",
     "next": "^15.2.3",
@@ -32,7 +33,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "daisyui": "^5.0.4",
-    "drizzle-kit": "^0.30.5",
+    "drizzle-kit": "^0.31.1",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
     "tailwindcss": "^4",
