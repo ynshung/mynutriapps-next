@@ -13,3 +13,7 @@ export const refreshFoodCategory = async () => {
 export const refreshFoodCategoryID = async () => {
   revalidatePath("/dashboard/food-categories/[id]");
 };
+
+export const refreshReports = async () => {
+  revalidatePath("/dashboard/reports");
+};
