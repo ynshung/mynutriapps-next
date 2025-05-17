@@ -1,4 +1,5 @@
-import { AnyPgColumn, boolean, date, index, vector } from "drizzle-orm/pg-core";
+import { desc, eq } from "drizzle-orm";
+import { AnyPgColumn, boolean, date, index, jsonb, pgView, vector } from "drizzle-orm/pg-core";
 import {
   integer,
   numeric,
@@ -21,12 +22,16 @@ export const activityLevelEnum = pgEnum("activity_level", [
   "extremelyActive",
 ]);
 
-export const goalEnum = pgEnum("goal", [
+const goalValues = [
   "improveHealth",
   "loseWeight",
   "improvePerformance",
-  "none",
-]);
+  "chronicDisease",
+] as const;
+
+export type GoalType = typeof goalValues[number];
+
+export const goalEnum = pgEnum("goal", goalValues);
 
 export const foodProductImageTypes = pgEnum("food_product_image_types", [
   "front",
@@ -34,6 +39,13 @@ export const foodProductImageTypes = pgEnum("food_product_image_types", [
   "ingredients",
   "other",
 ]);
+
+export type ProductScore = {
+  score?: number;
+  scoreBreakdown?: Record<string, number>;
+  total: number;
+  quartile?: number;
+}
 
 export const usersTable = pgTable("users", {
   id: serial().primaryKey(),
@@ -113,6 +125,10 @@ export const foodProductsTable = pgTable("food_products", {
     }),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
+  
+  score: jsonb().$type<{
+    [key in GoalType]?: ProductScore
+  }>(),
 
   createdBy: integer()
     .notNull()
@@ -122,7 +138,17 @@ export const foodProductsTable = pgTable("food_products", {
       onUpdate: "cascade",
     }),
   adminComment: text(),
+  hidden: boolean().default(false),
 });
+
+export const foodProductPublicView = pgView("food_product_public_view").as(
+  (qb) =>
+    qb
+      .select()
+      .from(foodProductsTable)
+      .where(eq(foodProductsTable.hidden, false))
+      .orderBy(desc(foodProductsTable.createdAt))
+);
 
 export const nutritionInfoTable = pgTable("nutrition_info", {
   foodProductId: integer()
@@ -150,6 +176,7 @@ export const nutritionInfoTable = pgTable("nutrition_info", {
   vitamins: text().array(),
   minerals: text().array(),
   uncategorized: text().array(),
+  nutriscore: text(),
 });
 
 // TODO - inconsistent naming of Id and ID
@@ -218,4 +245,50 @@ export const userProductFavoritesTable = pgTable("user_product_favorites", {
       onUpdate: "cascade",
     }),
   favoritedAt: timestamp().notNull().defaultNow(),
+});
+
+export const reportTypes = [
+  "invalid_name_brand",
+  "invalid_category",
+  "invalid_nutrition",
+  "invalid_image",
+  "duplicate_product",
+  "other",
+  "resubmission",
+] as const;
+export const userReportTypes = pgEnum("user_report_types", reportTypes);
+export const userReportStatus = pgEnum("user_report_status", ["pending", "resolved", "rejected"]);
+
+export const userReportTable = pgTable("user_report", {
+  reportID: serial().primaryKey(),
+  userID: integer()
+    .notNull()
+    .default(-1)
+    .references(() => usersTable.id, {
+      onDelete: "set default",
+      onUpdate: "set default",
+    }),
+  foodProductId: integer()
+    .references(() => foodProductsTable.id, {
+      onDelete: "set null",
+      onUpdate: "set null",
+    }),
+  oldFoodProductId: integer()
+    .references(() => foodProductsTable.id, {
+      onDelete: "set null",
+      onUpdate: "set null",
+    }),
+
+  reportType: userReportTypes().array(),
+  reportDescription: text(),
+  reportTimestamp: timestamp().notNull().defaultNow(),
+
+  reportStatus: userReportStatus().notNull().default("pending"),
+  adminComment: text(),
+  closeAdmin: integer()
+    .references(() => usersTable.id, {
+      onDelete: "set null",
+      onUpdate: "set null",
+    }),
+  closeTimestamp: timestamp(),
 });
