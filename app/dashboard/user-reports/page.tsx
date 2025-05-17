@@ -11,6 +11,7 @@ import { count, desc, eq, getTableColumns } from "drizzle-orm";
 import Link from "next/link";
 import ReportAction from "@/app/components/ReportAction";
 import { Pagination } from "@/app/components/Pagination";
+import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
 
 export const metadata: Metadata = {
   title: "User Reports",
@@ -84,6 +85,14 @@ export default async function Page({
       </div>
 
       <div className="mt-4 p-4 bg-base-100 rounded shadow">
+        <div className="flex flex-row justify-center gap-8 items-center mb-4">
+          <Pagination
+            url="/dashboard/user-reports"
+            currPage={currPage}
+            totalPages={totalPages}
+          />
+          <RefreshFoodProduct />
+        </div>
         <div className="overflow-x-auto">
           <table className="table w-full">
             <thead>
@@ -204,11 +213,6 @@ export default async function Page({
             </tbody>
           </table>
         </div>
-        <Pagination
-          url="/dashboard/user-reports"
-          currPage={currPage}
-          totalPages={totalPages}
-        />
       </div>
     </div>
   );
