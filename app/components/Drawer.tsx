@@ -119,20 +119,20 @@ export default function Drawer({ children }: DrawerProps) {
                   <span className="icon-[material-symbols--feedback] text-2xl"></span>
                 }
               />
-              <Row
+              {/* <Row
                 link="/dashboard/user-management"
                 text="User Management"
                 icon={
                   <span className="icon-[mdi--users] text-2xl"></span>
                 }
-              />
-              <Row
+              /> */}
+              {/* <Row
                 link="/dashboard/dev"
                 text="Developer Tools"
                 icon={
                   <span className="icon-[material-symbols--logo-dev] text-2xl"></span>
                 }
-              />
+              /> */}
             </div>
           </div>
           <li>
