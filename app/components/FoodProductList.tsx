@@ -18,6 +18,7 @@ export interface FoodProductDatabaseType {
     ingredients?: typeof imagesTable.$inferSelect;
   };
   verified: boolean | null;
+  hidden: boolean | null;
 }
 
 export default function FoodProductList({
@@ -99,9 +100,11 @@ export default function FoodProductList({
       <td>
         <div
           className="flex justify-center tooltip"
-          data-tip={item.verified ? "Verified" : "Unverified"}
+          data-tip={!item.hidden ? (item.verified ? "Verified" : "Unverified") : "Hidden"}
         >
-          {item.verified ? (
+          {item.hidden ? (
+            <span className="icon-[material-symbols--visibility-off] text-3xl text-gray-400"></span> 
+          ): item.verified ? (
             <span className="icon-[material-symbols--verified] text-3xl text-primary"></span>
           ) : (
             <span className="icon-[material-symbols--pending] text-3xl text-gray-400"></span>

@@ -68,6 +68,7 @@ export default async function Page({
           (typeof imageFoodProductsTable.$inferSelect)[]
         >`json_agg(${imageFoodProductsTable})`,
         verified: foodProductsTable.verified,
+        hidden: foodProductsTable.hidden,
       })
       .from(foodProductsTable)
       .innerJoin(

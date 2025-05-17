@@ -14,6 +14,7 @@ interface dbToFormProps {
   foodProductOther: {
     barcode: StringSelect[];
     verified: boolean;
+    hidden: boolean;
   };
   foodProductPreview: FoodProductPreview;
   frontLabel: FoodProduct;
@@ -42,6 +43,7 @@ export const dbToForm = (data: ServerFoodProductDetails): dbToFormProps => {
         value: code,
       })) || [],
       verified: data.food_products.verified === true,
+      hidden: data.food_products.hidden === true,
     },
     foodProductPreview: {
       front_label: frontLabelImage,

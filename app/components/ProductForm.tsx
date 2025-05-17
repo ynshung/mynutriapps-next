@@ -44,6 +44,7 @@ export default function ProductForm({
 
   const [barcode, setBarcode] = useState<StringSelect[]>([]);
   const [isVerified, setIsVerified] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   const [foodProductPreview, setFoodProductPreview] =
     useState<FoodProductPreview>({});
@@ -77,6 +78,7 @@ export default function ProductForm({
         const formData = dbToForm(data);
         setBarcode(formData.foodProductOther.barcode);
         setIsVerified(formData.foodProductOther.verified);
+        setIsHidden(formData.foodProductOther.hidden);
         setFrontLabelData(formData.frontLabel);
         setNutritionInfo(formData.nutritionInfo ?? {});
         setIngredientDetails(formData.ingredientDetails);
@@ -167,6 +169,19 @@ export default function ProductForm({
               className="toggle toggle-primary toggle-md"
               checked={isVerified}
               onChange={(e) => setIsVerified(e.target.checked)}
+            />
+          </div>
+          <div className="flex flex-row gap-4 items-center justify-evenly mx-2 mt-2">
+            <h2 className="font-bold items-center flex gap-2 text-lg">
+              <span className="icon-[material-symbols--visibility-off] text-gray-500 text-2xl"></span>
+              Hidden
+            </h2>
+            <input
+              name="hidden"
+              type="checkbox"
+              className="toggle toggle-primary toggle-md"
+              checked={isHidden}
+              onChange={(e) => setIsHidden(e.target.checked)}
             />
           </div>
           <div className="divider my-0" />
