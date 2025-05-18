@@ -39,7 +39,7 @@
   --font-display: "Roboto", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
   --font-mono: "Roboto Mono", monospace;
-  --color-primary-light: #869B7D;
+  --color-primary-light: rgb(236, 245, 219);
   --aspect-image: 4 / 3; 
 }
 
