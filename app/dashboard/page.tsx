@@ -14,6 +14,7 @@ import {
   PieChartUserGoals,
 } from "../components/DashboardComponent";
 import Link from "next/link";
+import { ReportOptionsFullNames } from "../data/reports";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -253,14 +254,31 @@ export default async function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentReports.map((report) => (
+                  {recentReports.map((report) => 
                     <tr key={report.id}>
                       <td>{report.id}</td>
                       <td>{report.title}</td>
-                      <td>{report.type}</td>
-                      <td className="overflow-ellipsis">{report.description}</td>
+                      <td>
+                        <div className="flex flex-wrap gap-2">
+                          {report.type?.map((type) => (
+                            <div
+                              key={type}
+                              className={`badge badge-sm badge-soft ${
+                                type === "resubmission"
+                                  ? "badge-secondary"
+                                  : "badge-primary"
+                              }`}
+                            >
+                              {ReportOptionsFullNames[type]}
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="text-xs overflow-ellipsis">
+                        {report.description}
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

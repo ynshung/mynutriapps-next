@@ -12,19 +12,10 @@ import Link from "next/link";
 import ReportAction from "@/app/components/ReportAction";
 import { Pagination } from "@/app/components/Pagination";
 import RefreshFoodProduct from "@/app/components/RefreshFoodProduct";
+import { ReportOptionsFullNames } from "@/app/data/reports";
 
 export const metadata: Metadata = {
   title: "User Reports",
-};
-
-const ReportOptionsFullNames: Record<string, string> = {
-  duplicate_product: "Duplicate Product",
-  invalid_name_brand: "Invalid Name or Brand",
-  invalid_category: "Invalid Category",
-  invalid_nutrition: "Invalid Nutrition Information",
-  invalid_image: "Invalid Image",
-  other: "Other",
-  resubmission: "Resubmission",
 };
 
 const ReportStatusIcon: Record<string, string> = {
