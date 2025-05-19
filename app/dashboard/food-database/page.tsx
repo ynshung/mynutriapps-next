@@ -14,18 +14,20 @@ import Form from "next/form";
 import { searchProductsMS } from "@/app/utils/minisearch";
 import { notFound } from "next/navigation";
 import { Pagination } from "@/app/components/Pagination";
-import { Metadata } from 'next';
- 
+import { Metadata } from "next";
+import VerifiedToggle from "@/app/components/VerifiedToggle";
+
 export const metadata: Metadata = {
-  title: 'Food Database',
+  title: "Food Database",
 };
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const { page, search } = await searchParams;
+  const { page, search, verified } = await searchParams;
+  const verifiedOnly = verified === "true" ? true : false;
   const productsPerPage = 30;
 
   let currPage = 0;
@@ -39,7 +41,8 @@ export default async function Page({
     const { data: searchData, total } = await searchProductsMS(
       search,
       currPage,
-      productsPerPage
+      productsPerPage,
+      verifiedOnly
     );
     data = searchData;
     totalPages = Math.ceil(total / productsPerPage);
@@ -47,7 +50,8 @@ export default async function Page({
     // TODO: Bug - this does not tally with the below actual query
     const totalProductsQuery = await db
       .select({ count: count() })
-      .from(foodProductsTable);
+      .from(foodProductsTable)
+      .where(verifiedOnly ? eq(foodProductsTable.verified, true) : undefined);
     const totalProducts = totalProductsQuery[0].count;
 
     totalPages = Math.ceil(totalProducts / productsPerPage);
@@ -71,6 +75,9 @@ export default async function Page({
         hidden: foodProductsTable.hidden,
       })
       .from(foodProductsTable)
+      .where(
+        verifiedOnly ? eq(foodProductsTable.verified, verifiedOnly) : undefined
+      )
       .innerJoin(
         imageFoodProductsTable,
         eq(imageFoodProductsTable.foodProductId, foodProductsTable.id)
@@ -129,21 +136,25 @@ export default async function Page({
 
         <div className="mt-4 p-4 bg-base-100 rounded shadow">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
-            <Form action="/dashboard/food-database" className="join">
-              <label className="input join-item">
-                <span className="icon-[material-symbols--search-rounded] text-2xl"></span>
-                <input
-                  name="search"
-                  type="search"
-                  className="grow"
-                  placeholder="Search"
-                  defaultValue={search}
-                />
-              </label>
-              <button className="btn btn-primary join-item" type="submit">
-                Search
-              </button>
-            </Form>
+            <div className="flex flex-row gap-2 items-center">
+              <Form action="/dashboard/food-database" className="join">
+                <label className="input join-item">
+                  <span className="icon-[material-symbols--search-rounded] text-2xl"></span>
+                  <input
+                    name="search"
+                    type="search"
+                    className="grow"
+                    placeholder="Search"
+                    defaultValue={search}
+                  />
+                </label>
+                <button className="btn btn-primary join-item" type="submit">
+                  Search
+                </button>
+              </Form>
+              <VerifiedToggle verifiedOnly={verifiedOnly} />
+            </div>
+
             <Pagination
               url="/dashboard/food-database"
               currPage={currPage}

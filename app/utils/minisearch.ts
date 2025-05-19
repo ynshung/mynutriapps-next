@@ -16,7 +16,7 @@ type ProductSearchResult = {
   barcode: string[] | null;
 };
 
-const getProductMS = async (): Promise<ProductSearchResult[]> => {
+const getProductMS = async (verifiedOnly: boolean): Promise<ProductSearchResult[]> => {
   const data = await db
     .select({
       id: foodProductsTable.id,
@@ -25,6 +25,9 @@ const getProductMS = async (): Promise<ProductSearchResult[]> => {
       barcode: foodProductsTable.barcode,
     })
     .from(foodProductsTable)
+    .where(
+      verifiedOnly ? eq(foodProductsTable.verified, true) : undefined
+    )
     .innerJoin(
       foodCategoryTable,
       eq(foodProductsTable.foodCategoryId, foodCategoryTable.id)
@@ -41,7 +44,8 @@ const getProductMS = async (): Promise<ProductSearchResult[]> => {
 export const searchProductsMS = async (
   query: string,
   page: number = 0,
-  limit: number = 10
+  limit: number = 10,
+  verified: boolean = false
 ): Promise<{data: FoodProductDatabaseType[], total: number}> => {
   const miniSearch = new MiniSearch({
     fields: ["name", "brand", "barcode"],
@@ -52,7 +56,7 @@ export const searchProductsMS = async (
     },
   });
 
-  const data = await getProductMS();
+  const data = await getProductMS(verified);
   miniSearch.addAll(data);
   const result = miniSearch.search(query);
   const idList = result.map((r) => r.id).slice(page * limit, (page + 1) * limit);
