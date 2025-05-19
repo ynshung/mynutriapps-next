@@ -7,7 +7,7 @@ import {
   userReportTable,
   usersTable,
 } from "../db/schema";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, ne, notInArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import {
   BarChartGropued,
@@ -51,8 +51,8 @@ const NumberIndicatorCard = ({
 };
 
 export default async function Dashboard() {
-  const dateSqlClicks = sql`TO_CHAR(${userProductClicksTable.clickedAt}, 'YYYY-MM')`;
-  const dateSqlProducts = sql`TO_CHAR(${foodProductsTable.createdAt}, 'YYYY-MM')`;
+  const dateSqlClicks = sql`TO_CHAR(${userProductClicksTable.clickedAt}, 'YYYY-MM-DD')`;
+  const dateSqlProducts = sql`TO_CHAR(${foodProductsTable.createdAt}, 'YYYY-MM-DD')`;
 
   const fetchDashboardData = async () => {
     const [
@@ -72,11 +72,19 @@ export default async function Dashboard() {
         .select({ count: count() })
         .from(foodProductsTable)
         .where(eq(foodProductsTable.hidden, false)),
-      db.select({ count: count() }).from(userProductClicksTable),
       db
         .select({ count: count() })
         .from(userProductClicksTable)
-        .where(eq(userProductClicksTable.userScan, true)),
+        .where(ne(userProductClicksTable.userID, 23)),
+      db
+        .select({ count: count() })
+        .from(userProductClicksTable)
+        .where(
+          and(
+            eq(userProductClicksTable.userScan, true),
+            ne(userProductClicksTable.userID, 23)
+          )
+        ),
       db
         .select({ count: count() })
         .from(nutritionInfoTable)
@@ -99,6 +107,7 @@ export default async function Dashboard() {
           count: count(),
         })
         .from(userProductClicksTable)
+        .where(ne(userProductClicksTable.userID, 23))
         .groupBy(dateSqlClicks)
         .orderBy(dateSqlClicks),
       db
@@ -107,6 +116,7 @@ export default async function Dashboard() {
           count: count(),
         })
         .from(usersTable)
+        .where(notInArray(usersTable.id, [-1, 23]))
         .groupBy(usersTable.goal),
       db
         .select({
@@ -189,7 +199,7 @@ export default async function Dashboard() {
     {
       icon: "icon-[material-symbols--person]",
       title: "Total Users",
-      value: totalUsers.toLocaleString(),
+      value: (totalUsers - 2).toLocaleString(), // Admin and anonymous user
     },
     {
       icon: "icon-[material-symbols--feedback]",
@@ -202,8 +212,8 @@ export default async function Dashboard() {
     <main className="mx-4 my-8 lg:m-8">
       <div className="flex flex-row gap-2 items-center justify-between">
         <div>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>MyNutriApps&#39;s info at a glance.</p>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p>MyNutriApps&#39;s info at a glance.</p>
         </div>
         <RefreshDashboard />
       </div>
@@ -260,7 +270,7 @@ export default async function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentReports.map((report) => 
+                  {recentReports.map((report) => (
                     <tr key={report.id}>
                       <td>{report.id}</td>
                       <td>{report.title}</td>
@@ -284,7 +294,7 @@ export default async function Dashboard() {
                         {report.description}
                       </td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </table>
             </div>

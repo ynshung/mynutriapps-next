@@ -17,3 +17,7 @@ export const refreshFoodCategoryID = async () => {
 export const refreshReports = async () => {
   revalidatePath("/dashboard/reports");
 };
+
+export const refreshDashboard = async () => {
+  revalidatePath("/dashboard");
+}
