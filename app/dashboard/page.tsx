@@ -15,6 +15,7 @@ import {
 } from "../components/DashboardComponent";
 import Link from "next/link";
 import { ReportOptionsFullNames } from "../data/reports";
+import RefreshDashboard from "../components/RefreshDashboard";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -199,8 +200,13 @@ export default async function Dashboard() {
 
   return (
     <main className="mx-4 my-8 lg:m-8">
+      <div className="flex flex-row gap-2 items-center justify-between">
+        <div>
       <h1 className="text-2xl font-bold">Dashboard</h1>
       <p>MyNutriApps&#39;s info at a glance.</p>
+        </div>
+        <RefreshDashboard />
+      </div>
       <div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6 mt-8">
           {cardsData.map((card, index) => (
