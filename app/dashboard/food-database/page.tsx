@@ -135,7 +135,7 @@ export default async function Page({
         </div>
 
         <div className="mt-4 p-4 bg-base-100 rounded shadow">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 justify-items-center lg:justify-items-normal">
             <div className="flex flex-row gap-2 items-center">
               <Form action="/dashboard/food-database" className="join">
                 <label className="input join-item">
@@ -163,7 +163,7 @@ export default async function Page({
               }
               totalPages={totalPages}
             />
-            <div className="col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
+            <div className="col-span-1 md:col-span-2 lg:col-span-1 justify-self-center lg:justify-self-end self-center flex gap-2 items-center">
               <Link
                 href="/dashboard/food-database/new-product"
                 className="btn btn-primary btn-circle transition"
