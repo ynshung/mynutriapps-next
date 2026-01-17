@@ -1,4 +1,5 @@
 # MyNutriApps Admin
+This is the admin web app of my final year project, MyNutriApps. Contact me if you would like to learn more!
 
 ## Environment Setup
 ```
